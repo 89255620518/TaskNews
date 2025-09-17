@@ -1,0 +1,305 @@
+.PagesModalZal {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.containerHull {
+    background: url(../../img/Zal.png) no-repeat center;
+    background-size: 100%;
+    width: 100vw;
+    height: 105vh;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 910000;
+}
+.closedModal {
+    position: absolute;
+    width: 70px;
+    top: 259px;
+    height: 10%;
+    left: 0;
+    padding-left: 30px;
+}
+.closedModal:hover {
+    cursor: pointer;
+    opacity: 0.5;
+}
+.closedModal:active {
+    cursor: grabbing;
+}
+@media (min-width: 1800px) {
+    .closedModal {
+        top: 130px;
+    }
+}
+@media (min-width: 1600px) {
+    .containerHull {
+        height: 1350px;
+        width: 2220px;
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: translate(0);
+    }
+    .closedModal {
+        top: 82px;
+    }
+    .PagesModalZal {
+        overflow: auto;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 21314;
+        backdrop-filter: blur(19px);
+    }
+}
+
+.containerColumn {
+    width: 100%;
+}
+
+.reserv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    transition: ease 0.4s;
+    cursor: pointer;
+}
+
+.reserv__N1 {
+    right: 5vw;
+}
+
+.reserv__N2 {
+    left: 54vw;
+}
+
+.reserv__N4 {
+    left: 54vw;
+}
+
+.reserv__N5 {
+    margin: 0 30% 0 0;
+}
+
+.reserv__N5:last-child {
+    margin-right: 0;
+}
+
+.reserv__N6 {
+    left: 17vw;
+}
+
+.reserv__N6,
+.reserv__N3,
+.reserv__N2 {
+    margin: 57% 0 0 0;
+}
+
+.reserv__N3 {
+    left: 35vw;
+}
+
+.reserv img {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+}
+
+.reserv:last-child {
+    margin-right: 0;
+}
+
+.reservText {
+    color: #3f0;
+    font-family: "Lato";
+    font-size: calc(9px + 20 * ((100vw - 320px) / (1920 - 320)));
+    font-style: normal;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 19px 0;
+}
+
+.reserv:hover {
+    -webkit-box-shadow: 0px 5px 10px 15px rgba(94, 221, 63, 0.2);
+    -moz-box-shadow: 0px 5px 10px 15px rgba(94, 221, 63, 0.2);
+    box-shadow: 0px 5px 10px 15px rgba(94, 221, 63, 0.2);
+}
+
+.containerRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Stols_5_4__row {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    margin: 49% 0 0 0;
+}
+
+/* MEDIA  */
+
+@media (max-width: 1322px) {
+  .reserv img {
+    max-width: 70%;
+    height: auto;
+  }
+
+  .reservText {
+    margin: 0 0 5px 0;
+  }
+
+  .reservText_4 {
+    margin-right: 81px;
+  }
+}
+
+@media (max-width: 1313px) {
+  .reserv__N1 {
+    right: 3vw;
+  }
+}
+
+@media (max-width: 1066px) {
+  .reserv img {
+    max-width: 55%;
+    height: auto;
+  }
+
+  .reserv__N1 {
+    right: 2vw;
+  }
+}
+
+@media (max-width: 747px) {
+
+  .reserv__N6,
+  .reserv__N3,
+  .reserv__N2 {
+    margin: 55% 0 0 0;
+  }
+
+  .reserv img {
+    max-width: 40%;
+  }
+
+  .reserv__N6 {
+    left: 11vw;
+  }
+
+  .reserv__N1 {
+    right: 0vw;
+  }
+}
+
+@media (max-width: 690px) {
+
+  .reserv__N6,
+  .reserv__N3,
+  .reserv__N2 {
+    margin: 57% 0 0 0;
+  }
+
+  .reserv img {
+    max-width: 40%;
+  }
+}
+
+@media (max-width: 568px) {
+
+  .reserv__N6,
+  .reserv__N3,
+  .reserv__N2 {
+    margin: 57% 0 0 0;
+  }
+
+  .reserv img {
+    max-width: 25%;
+  }
+
+  .img {
+    margin-right: 81px;
+  }
+
+  .reserv__N6 {
+    left: 9vw;
+  }
+
+  .reserv__N1 {
+    right: 0;
+  }
+
+  .reserv {
+    align-items: center;
+    position: absolute;
+  }
+}
+
+@media (max-width: 375px) {
+  .containerHull {
+    top: -61vw;
+  }
+
+  .reserv__N6,
+  .reserv__N3,
+  .reserv__N2 {
+    margin: 53% 0 0 0;
+  }
+
+  .reserv__N2 {
+    left: 20vw;
+  }
+
+  .reserv__N3 {
+    left: 4vw;
+  }
+
+  .reserv img {
+    max-width: 25%;
+  }
+
+  .reserv__N6 {
+    left: -14vw;
+  }
+
+  .reserv__N1 {
+    right: 5vw;
+  }
+
+  .reserv__N5 {
+    margin: 0 140px 0 0;
+  }
+
+  .reserv__N4 {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    right: 33vw;
+  }
+
+  .reserv__N4 img {
+    max-width: 100%;
+  }
+
+  .reserv__N5 {
+    left: 5vw;
+  }
+
+  .reserv {
+    align-items: end;
+  }
+}

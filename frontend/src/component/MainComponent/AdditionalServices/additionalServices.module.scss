@@ -1,0 +1,197 @@
+.containerServices {
+    text-align: center;
+    position: relative;
+    width: 100%;
+    padding: 3rem 2rem 7rem;
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media screen and (max-width: 700px) {
+        padding: 0;
+    }
+
+    &__content {
+        max-width: 1400px;
+        padding: 2rem;
+
+        @media screen and (max-width: 700px) {
+            padding: 0;
+        }
+
+        &__info {
+            position: relative;
+            height: 300px; // или нужная вам высота
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 8px; // опционально
+
+            &_img {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: 1;
+            }
+
+            &_text {
+                position: relative;
+                z-index: 2;
+                color: white;
+                font-size: 2rem;
+                font-weight: bold;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+                background-color: rgb(0 0 0 / 26%);
+                padding: 0.5rem 1.5rem;
+                border-radius: 4px;
+            }
+        }
+
+        &__menu {
+            padding: 10px;
+
+            &_text {
+                color: #000;
+                display: flex;
+                flex-direction: column;
+            }
+
+            &_services {
+                margin-top: 2rem;
+                text-align: left;
+                padding: 15px;
+
+                .serviceItem {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.8rem 0;
+                    border-bottom: 1px solid #eee;
+
+                    .serviceName {
+                        font-weight: 500;
+                        color: #000;
+                    }
+
+                    .quantityControls {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+
+                        .quantityButton {
+                            width: 30px;
+                            height: 30px;
+                            border: 1px solid #ddd;
+                            background: #f8f8f8;
+                            border-radius: 4px;
+                            color: #000;
+                            cursor: pointer;
+                            font-size: 1rem;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.2s;
+
+                            &:hover {
+                                background: #e8e8e8;
+                            }
+                        }
+
+                        .quantityValue {
+                            min-width: 20px;
+                            text-align: center;
+                            color: #000;
+                        }
+                    }
+                }
+
+                .divider {
+                    height: 1px;
+                    background: #ddd;
+                    margin: 1.5rem 0;
+                }
+
+                .totalSection {
+                    display: flex;
+                    flex-direction: column;
+
+                    .totalRow {
+                        display: flex;
+                        justify-content: space-between;
+                        font-weight: bold;
+                        font-size: 1.1rem;
+                        margin-bottom: 1rem;
+
+                        &_span {
+                            color: #000;
+                        }
+
+                        .totalAmount {
+                            color: #d32f2f;
+                        }
+                    }
+
+                    .commentArea {
+                        width: 100%;
+                        min-height: 80px;
+                        padding: 0.8rem;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        margin-bottom: 1.5rem;
+                        resize: vertical;
+                        font-family: inherit;
+                    }
+
+                    .orderButton {
+                        background-color: #e74c3c;
+                        color: white;
+                        border: none;
+                        padding: 1rem;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        margin-top: 1rem;
+
+                        &:hover {
+                            background-color: #c0392b;
+                        }
+
+                        &:active {
+                            transform: scale(0.98);
+                        }
+
+                        &:disabled {
+                            background-color: #cccccc;
+                            cursor: not-allowed;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.orderDiv {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.orderError {
+    text-align: center;
+    color: red;
+    padding: 10px;
+    background: antiquewhite;
+    box-shadow: 1px 2px 2px 3px;
+    border-radius: 20px;
+    width: 60%;
+    margin: 10px;
+}

@@ -1,0 +1,133 @@
+.containerBasketItem {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px #f69049;
+    transition: all 0.3s ease;
+    gap: 20px;
+
+    &:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+}
+
+.itemImage {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+}
+
+.itemInfo {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.itemTitle {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.priceContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+
+    .unitPrice {
+        color: #666;
+    }
+
+    .multiply,
+    .equals {
+        color: #999;
+        font-size: 0.8rem;
+    }
+
+    .quantity {
+        font-weight: 500;
+        color: #444;
+    }
+
+    .totalPrice {
+        font-weight: 600;
+        color: #f69049;
+    }
+}
+
+.itemActions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.removeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+
+    .trashIcon {
+        color: #ff6b6b;
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+    }
+
+    &:hover {
+        background: rgba(255, 107, 107, 0.1);
+
+        .trashIcon {
+            color: #ff4444;
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+    .containerBasketItem {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .itemImage {
+        width: 100%;
+        height: 120px;
+    }
+
+    .itemActions {
+        width: 100%;
+        justify-content: center;
+    }
+}

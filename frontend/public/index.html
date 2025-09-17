@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="%PUBLIC_URL%/favicon.png" type="image/png">
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta charset="utf-8" />
+
+    <!-- Важное исправление viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no" />
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta
+      name="description"
+      content="В Дали-Хинкали бесплатная доставка по Орехово-Зуевскому району"
+    />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Дали-Хинкали кафе грузинской кухни с летней верандой</title>
+    <meta name="yandex-verification" content="c2e397d2d61662dc" />
+    <style>
+      html, body {
+        width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+      }
+
+      #root {
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      * {
+        box-sizing: border-box;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <script>
+      // Проверяем, что мы внутри Telegram WebApp
+      if (window.Telegram && window.Telegram.WebApp) {
+        // Применяем тему Telegram
+        document.body.classList.add('telegram-web-app');
+        document.body.style.backgroundColor = 'var(--tg-theme-bg-color)';
+        document.body.style.color = 'var(--tg-theme-text-color)';
+        
+        // Расширяем на весь экран
+        window.Telegram.WebApp.expand();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,261 @@
+.PagesModalVeranda {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.reserveVeranda {
+  background: url(../../img/Veranda.png) no-repeat center;
+  background-size: 100%;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: end;
+  align-items: start;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 910000;
+}
+
+.reserveVerandaRow img {
+  width: 40%;
+}
+
+.reserveVerandaColumn_6__9 {
+  margin: 0 0 250px 0;
+}
+
+.reserveVerandaColumn_10__13 {
+  margin: 0 0 235px 0;
+  display: flex;
+  justify-content: end;
+  width: 100%;
+}
+
+.reserveVerandaRow {
+  display: flex;
+  transition: ease 0.4s;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 17%;
+  cursor: pointer;
+}
+
+.reserveVerandaContaienr {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.reserveVerandaRow__1__5 {
+  display: flex;
+  justify-content: end;
+  width: 100%;
+
+}
+
+.reserveVerandaColumn_6__9 {
+  display: flex;
+  justify-content: end;
+  width: 100%;
+}
+
+.reserveVerandaColumn_6__9 {
+  width: 100%;
+}
+
+.reserveVerandaRow:hover {
+  -webkit-box-shadow: 0px 5px 10px 15px rgba(94, 221, 63, 0.2);
+  -moz-box-shadow: 0px 5px 10px 15px rgba(94, 221, 63, 0.2);
+  box-shadow: 0px 5px 10px 15px rgba(94, 221, 63, 0.2);
+}
+
+.reserveVerandaText {
+  color: #3f0;
+  font-family: "Lato";
+  font-size: calc(9px + 20 * ((100vw - 320px) / (1920 - 320)));
+  font-style: normal;
+  font-weight: 600;
+  text-align: center;
+  margin: 17px 0 17px 0;
+}
+.closedModal {
+  position: absolute;
+  width: 50px;
+  left: 10px;
+  top: 240px;
+  height: 10%;
+  z-index: 2122;
+}
+.closedModal path {
+  fill: #ffffff;
+}
+.closedModal:hover {
+  cursor: pointer;
+  opacity: 0.5;
+}
+.closedModal:active {
+  cursor: grabbing;
+}
+@media (min-width: 1800px) {
+  .closedModal {
+    left: 63px;
+    top: 157px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .closedModal {
+    left: 70px;
+    top: 59px;
+  }
+  .PagesModalVeranda {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 2121;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+  }
+  .reserveVeranda {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: translate(0);
+    height: 1500px;
+    width: 2020px;
+    background-size: contain;
+  }
+  .reserveVerandaContaienr {
+    position: relative;
+    bottom: 10px;
+  }
+}
+
+/* MEDIA */
+@media (max-width: 2331px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 220px 0;
+  }
+}
+
+@media (max-width: 2080px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 180px 0;
+  }
+}
+
+@media (max-width: 1790px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 150px 0;
+  }
+}
+
+@media (max-width: 1550px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 120px 0;
+  }
+}
+
+@media (max-width: 1328px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 110px 0;
+  }
+}
+
+@media (max-width: 1288px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 110px 0;
+  }
+}
+
+@media (max-width: 1240px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 90px 0;
+  }
+}
+
+@media (max-width: 1102px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 70px 0;
+  }
+}
+
+@media (max-width: 953px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 50px 0;
+  }
+}
+
+@media (max-width: 806px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 30px 0;
+  }
+}
+
+@media (max-width: 660px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 10px 0;
+  }
+
+  .reserveVerandaRow__1__5 {
+    margin: 0 20px 0 0;
+  }
+}
+
+@media (max-width: 512px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 20px 0 0;
+  }
+}
+
+@media (max-width: 375px) {
+
+  .reserveVerandaColumn_10__13,
+  .reserveVerandaColumn_6__9 {
+    margin: 0 0 -9px 0;
+  }
+
+  .reserveVerandaRow {
+    width: 19.5%;
+  }
+
+  .reserveVeranda {
+    top: -63vw;
+  }
+}

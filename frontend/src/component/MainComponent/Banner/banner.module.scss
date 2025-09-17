@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.containerBanner {
+    padding: 80px 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+
+    &__content {
+        display: flex;
+        gap: 20px;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 16px;
+        max-width: 1400px;
+        width: 100%;
+    }
+}
+
+.menuItem {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        cursor: pointer;
+        opacity: 0.5;
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
+
+    @media screen and (max-width: 700px) {
+        min-height: 115px;
+    }
+}
+
+.menuImage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    &.mainMenu img {
+        object-position: center; // Центрируем основное меню
+    }
+
+    &.beverage img {
+        object-position: center 14%; // Показываем верхушки стаканов
+    }
+
+    &.business img {
+        object-position: center; // Центрируем бизнес ланч
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+}
+
+.menuText {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 100%;
+    color: #ffffff;
+    position: relative;
+    z-index: 2;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    background: rgb(242 234 234 / 0%);
+    border-radius: 4px;
+
+    @media screen and (max-width: 650px) {
+        font-size: 23px;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .containerBanner__content {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    // .menuItem {
+    //     flex: 1;
+    //     min-width: 250px;
+    //     max-width: 350px;
+    //     height: 150px;
+    // }
+}

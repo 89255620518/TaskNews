@@ -1,0 +1,318 @@
+.containerCabinet {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 100px 20px 20px !important;
+    font-family: Arial, sans-serif;
+}
+
+.profileHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 10px;
+    flex-direction: column;
+}
+
+
+.userName {
+    margin: 0;
+    font-size: 24px;
+    color: #000;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.menuButton {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+
+    &:hover {
+        background: #e0e0e0;
+    }
+
+    &_span {
+        color: #000;
+    }
+}
+
+.icon {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.logoutButton {
+    margin-top: 30px;
+    background: #ffebee;
+    color: #d32f2f;
+
+    &:hover {
+        background: #ffcdd2;
+    }
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 0 15px;
+    backdrop-filter: blur(3px);
+}
+
+.modal {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+
+    h3 {
+        margin: 0 0 20px 0;
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        color: #333;
+    }
+}
+
+.formGroup {
+    margin-bottom: 16px;
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: border-color 0.3s;
+
+        &:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+
+    button {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+}
+
+.cancelButton {
+    background: #f5f5f5;
+    border: none;
+    color: #333;
+
+    &:hover {
+        background: #e0e0e0;
+    }
+}
+
+.saveButton {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+
+    &:hover {
+        background-color: #c0392b;
+    }
+
+    &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 480px) {
+    .modal {
+        padding: 20px 15px;
+        border-radius: 10px;
+
+        h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+    }
+
+    .formGroup {
+        margin-bottom: 12px;
+
+        input,
+        textarea {
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+    }
+
+    .modalButtons {
+        margin-top: 20px;
+
+        button {
+            padding: 10px 18px;
+            font-size: 14px;
+        }
+    }
+}
+
+.cancelButton {
+    background: #f5f5f5;
+    border: none;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #000;
+
+    &:hover {
+        background: #e0e0e0;
+    }
+}
+
+.orderDate {
+    color: #000;
+}
+
+.orderTotal {
+    color: #000;
+}
+
+.orderItems {
+    color: #000;
+}
+
+.ordersSection {
+    margin-top: 30px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.ordersList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.orderItem {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.orderHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.orderItems {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* Добавьте в ваш файл cabinet.module.scss */
+
+.noOrders {
+    text-align: center;
+    padding: 2rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 1rem;
+
+    p {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.orderButton {
+    background: #ff6b00;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+
+    &:hover {
+        background: #e05d00;
+    }
+}
+
+.orderStatus {
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    background: #f0f0f0;
+    display: inline-block;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+
+    &.completed {
+        background: #d4edda;
+        color: #155724;
+    }
+}
+
+.orderAddress {
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
