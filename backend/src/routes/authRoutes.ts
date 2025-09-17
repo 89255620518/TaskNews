@@ -8,7 +8,8 @@ import {
   getAllUsers,
   deleteUser,
   createUser,
-  getUserActivity
+  getUserActivity,
+  logout
 } from "../controllers/authController";
 import { authenticate } from "../middlewares/authMiddleware";
 
@@ -18,6 +19,7 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.post("/refresh", refresh);
+router.post("/logout", authenticate, logout);
 
 router.get("/profile", authenticate, (req, res) => {
   const user = req.user;

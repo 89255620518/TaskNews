@@ -1,23 +1,62 @@
 import './App.css';
 import { Helmet } from "react-helmet";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from './component/Header/header';
 import HomePage from './pages';
-// import AdminPage from './pages/admin';
 import CabinetPage from './pages/cabinet';
 import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import { useState, useCallback } from 'react';
-import { AuthProvider } from './useContext/AuthContext';
+import { AuthProvider, useAuth } from './useContext/AuthContext';
+
+const ProtectedRoute = ({ children }) => {
+  const { token, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+  
+  return token ? children : <Navigate to="/login" replace />;
+};
+
+const PublicRoute = ({ children }) => {
+  const { token, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+  
+  return !token ? children : <Navigate to="/" replace />;
+};
 
 const routes = [
-  // { path: '/admin', element: <AdminPage /> },
-  { path: '/cabinet', element: <CabinetPage /> },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
+  { 
+    path: '/cabinet', 
+    element: (
+      <ProtectedRoute>
+        <CabinetPage />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/login', 
+    element: (
+      <PublicRoute>
+        <LoginPage />
+      </PublicRoute>
+    ) 
+  },
+  { 
+    path: '/register', 
+    element: (
+      <PublicRoute>
+        <RegisterPage />
+      </PublicRoute>
+    ) 
+  },
 ];
 
-function App() {
+function AppContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const modalOpen = useCallback(() => {
@@ -31,27 +70,33 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-          <Helmet>
-            <title>Тестовое задание</title>
-          </Helmet>
-          <Router>
-            <Header
-              modalOpen={modalOpen}
-              modalClosed={modalClosed}
-              isModalOpen={isModalOpen}
-            />
+    <>
+      <Helmet>
+        <title>Тестовое задание</title>
+      </Helmet>
+      <Router>
+        <Header
+          modalOpen={modalOpen}
+          modalClosed={modalClosed}
+          isModalOpen={isModalOpen}
+        />
 
-            <Routes>
-              <Route
-                path="/"
-                element={<HomePage />}
-              />
-              {routes.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
-              ))}
-            </Routes>
-          </Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          {routes.map((route, index) => (
+            <Route key={index} path={route.path} element={route.element} />
+          ))}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

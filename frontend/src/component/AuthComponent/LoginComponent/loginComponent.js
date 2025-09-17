@@ -4,7 +4,7 @@ import fotoGif from '../img/font.gif';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { api } from '../../../api/api';
-import { useAuth } from '../../../useContext/AuthContext'; // Импортируем контекст
+import { useAuth } from '../../../useContext/AuthContext';
 
 const LoginComponent = () => {
     const navigate = useNavigate();
@@ -56,7 +56,6 @@ const LoginComponent = () => {
         return `+7 (${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 8)}-${digits.substring(8, 10)}`;
     }, []);
 
-    // Определяем тип логина (email или телефон)
     useEffect(() => {
         const isPhone = /^\+?[0-9\s\-()]+$/.test(formData.login);
         setLoginType(isPhone ? 'phone' : 'email');
@@ -133,26 +132,44 @@ const LoginComponent = () => {
         setIsSubmitting(true);
         try {
             const credentials = {
-                [loginType === 'email' ? 'email' : 'phone']:
+                [loginType === 'email' ? 'email' : 'phoneNumber']: 
                     loginType === 'phone' ? formData.login.replace(/\D/g, '') : formData.login,
                 password: formData.password
             };
 
+            // Используем метод login из api.users
             const response = await api.users.login(credentials);
 
-            if (response.auth_token) {
-                // Сохраняем токен через AuthContext вместо прямого сохранения в localStorage
-                authLogin(response.auth_token);
-                await api.users.getMe();
-                navigate('/');
+            if (response.success && response.accessToken) {
+                authLogin(response.accessToken);
+
+                console.log(authLogin, 'auth')
+                
+                if (response.success) {
+                    navigate('/');
+                }
+            } else {
+                setAuthError(response.message || 'Ошибка авторизации');
             }
         } catch (error) {
             console.error('Ошибка авторизации:', error);
-            setAuthError(
-                error.response?.data?.non_field_errors?.[0] ||
-                error.response?.data?.detail ||
-                'Неверные учетные данные. Пожалуйста, попробуйте снова.'
-            );
+            
+            // Обрабатываем различные форматы ошибок от API
+            if (error.response?.data) {
+                const errorData = error.response.data;
+                setAuthError(
+                    errorData.message ||
+                    errorData.error ||
+                    errorData.non_field_errors?.[0] ||
+                    'Неверные учетные данные. Пожалуйста, попробуйте снова.'
+                );
+            } else if (error.message === 'Invalid token') {
+                setAuthError('Сессия истекла. Пожалуйста, войдите снова.');
+            } else if (error.message === 'Unauthorized') {
+                setAuthError('Неверные учетные данные');
+            } else {
+                setAuthError('Ошибка соединения с сервером. Попробуйте позже.');
+            }
         } finally {
             setIsSubmitting(false);
         }

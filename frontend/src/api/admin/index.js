@@ -1,36 +1,26 @@
+
 export class AdminAPI {
   constructor(httpClient) {
     this.api = httpClient;
   }
 
-  // Управление пользователями
   getUsers(params = {}) {
-    return this.api.get('/admin/users/', { params });
+    return this.api.get('/users', { params });
   }
 
   getUser(id) {
-    return this.api.get(`/admin/users/${id}/`);
+    return this.api.get(`/users/${id}`);
   }
 
   createUser(data) {
-    return this.api.post('/admin/users/', data);
+    return this.api.post('/users', data);
   }
 
   updateUser(id, data) {
-    return this.api.put(`/admin/users/${id}/`, data);
+    return this.api.put(`/users/${id}`, data);
   }
 
   deleteUser(id) {
-    return this.api.delete(`/admin/users/${id}/`);
-  }
-
-  // Управление товарами
-  getAllGoods() {
-    return this.api.get('/admin/goods/');
-  }
-
-  // Статистика
-  getStatistics() {
-    return this.api.get('/admin/statistics/');
+    return this.api.delete(`/users/${id}`);
   }
 }

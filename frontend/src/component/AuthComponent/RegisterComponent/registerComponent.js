@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import RegisterModal from '../RegisterModal/registerModal';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../../api/api'
+import { api } from '../../../api/api';
 
 const RegisterComponent = () => {
     const [errors, setErrors] = useState({});
@@ -19,7 +19,8 @@ const RegisterComponent = () => {
         confirmPassword: '',
         firstName: '',
         lastName: '',
-        phone: '+7'
+        patronymic: '',
+        phoneNumber: '+7'
     });
     const navigate = useNavigate();
 
@@ -37,7 +38,7 @@ const RegisterComponent = () => {
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
 
-        if (name === 'phone') {
+        if (name === 'phoneNumber') {
             const formattedPhone = handlePhoneChange(value);
             setFormData(prev => ({
                 ...prev,
@@ -72,8 +73,8 @@ const RegisterComponent = () => {
             newErrors.lastName = 'Фамилия обязательна';
         }
 
-        if (!formData.phone || formData.phone.length < 12) {
-            newErrors.phone = 'Введите корректный номер телефона';
+        if (!formData.phoneNumber || formData.phoneNumber.length < 12) {
+            newErrors.phoneNumber = 'Введите корректный номер телефона';
         }
 
         if (!formData.email.trim()) {
@@ -124,33 +125,36 @@ const RegisterComponent = () => {
             const userData = {
                 email: formData.email,
                 password: formData.password,
-                re_password: formData.confirmPassword,
-                first_name: formData.firstName,
-                last_name: formData.lastName,
-                phone: formData.phone.startsWith('7')
-                    ? `+7${formData.phone.slice(1)}`
-                    : formData.phone
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                patronymic: formData.patronymic || null,
+                phoneNumber: formData.phoneNumber.startsWith('+7')
+                    ? formData.phoneNumber
+                    : `+7${formData.phoneNumber}`
             };
 
             console.log('Отправка данных:', userData);
 
-            // Вызов API (аналогично вашему рабочему примеру)
+            // Вызов API регистрации
             const response = await api.users.register(userData);
 
             // Обработка успешной регистрации
             setIsSuccess(true);
-            console.log('Токен:', response.auth_token); // Проверьте структуру ответа
+            console.log('Успешная регистрация:', response);
 
-            // Сохранение токена (если нужно)
-            if (response.auth_token) {
-                localStorage.setItem('auth_token', response.auth_token);
+            // Сохранение токенов
+            if (response.accessToken) {
+                localStorage.setItem('token', response.accessToken);
+            }
+            if (response.refreshToken) {
+                localStorage.setItem('refreshToken', response.refreshToken);
             }
 
-            // Перенаправление или закрытие модального окна
+            // Перенаправление на логин
             setTimeout(() => navigate('/login'), 3000);
 
         } catch (error) {
-            console.error('Полная ошибка регистрации:', error);
+            console.error('Ошибка регистрации:', error);
 
             // Обрабатываем ошибку
             const apiErrors = error.response?.data || {};
@@ -168,16 +172,39 @@ const RegisterComponent = () => {
             }
 
             // Обработка ошибок телефона
-            if (apiErrors.phone) {
-                formErrors.phone = Array.isArray(apiErrors.phone)
-                    ? apiErrors.phone.join(' ')
-                    : apiErrors.phone;
-            } else if (apiErrors.phone && apiErrors.phone.includes('уже существует')) {
-                formErrors.phone = 'Этот номер телефона уже используется';
+            if (apiErrors.phoneNumber) {
+                formErrors.phoneNumber = Array.isArray(apiErrors.phoneNumber)
+                    ? apiErrors.phoneNumber.join(' ')
+                    : apiErrors.phoneNumber;
+            } else if (apiErrors.phoneNumber && apiErrors.phoneNumber.includes('уже существует')) {
+                formErrors.phoneNumber = 'Этот номер телефона уже используется';
+            }
+
+            // Обработка ошибок имени
+            if (apiErrors.firstName) {
+                formErrors.firstName = Array.isArray(apiErrors.firstName)
+                    ? apiErrors.firstName.join(' ')
+                    : apiErrors.firstName;
+            }
+
+            // Обработка ошибок фамилии
+            if (apiErrors.lastName) {
+                formErrors.lastName = Array.isArray(apiErrors.lastName)
+                    ? apiErrors.lastName.join(' ')
+                    : apiErrors.lastName;
+            }
+
+            // Обработка ошибок пароля
+            if (apiErrors.password) {
+                formErrors.password = Array.isArray(apiErrors.password)
+                    ? apiErrors.password.join(' ')
+                    : apiErrors.password;
             }
 
             // Общие ошибки
-            if (apiErrors.non_field_errors) {
+            if (apiErrors.message) {
+                formErrors.general = apiErrors.message;
+            } else if (apiErrors.non_field_errors) {
                 formErrors.general = Array.isArray(apiErrors.non_field_errors)
                     ? apiErrors.non_field_errors.join(' ')
                     : apiErrors.non_field_errors;
@@ -311,25 +338,39 @@ const RegisterComponent = () => {
                             </div>
 
                             <div className={styles.formGroup}>
-                                <label htmlFor="phone" className={styles.label}>Телефон*</label>
+                                <label htmlFor="patronymic" className={styles.label}>Отчество</label>
+                                <input
+                                    type="text"
+                                    id="patronymic"
+                                    name="patronymic"
+                                    className={`${styles.input} ${errors.patronymic ? styles.errorInput : ''}`}
+                                    value={formData.patronymic}
+                                    onChange={handleChange}
+                                    placeholder="Ваше отчество (необязательно)"
+                                />
+                                {errors.patronymic && <span className={styles.errorText}>{errors.patronymic}</span>}
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label htmlFor="phoneNumber" className={styles.label}>Телефон*</label>
                                 <input
                                     type="tel"
-                                    id="phone"
-                                    name="phone"
-                                    className={`${styles.input} ${errors.phone ? styles.errorInput : ''}`}
-                                    value={formatPhoneDisplay(formData.phone)}
+                                    id="phoneNumber"
+                                    name="phoneNumber"
+                                    className={`${styles.input} ${errors.phoneNumber ? styles.errorInput : ''}`}
+                                    value={formatPhoneDisplay(formData.phoneNumber)}
                                     onChange={handleChange}
                                     onBlur={() => {
-                                        if (formData.phone.length < 12) {
+                                        if (formData.phoneNumber.length < 12) {
                                             setErrors(prev => ({
                                                 ...prev,
-                                                phone: 'Введите корректный номер телефона'
+                                                phoneNumber: 'Введите корректный номер телефона'
                                             }));
                                         }
                                     }}
                                     placeholder="+7 (___) ___-__-__"
                                 />
-                                {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
+                                {errors.phoneNumber && <span className={styles.errorText}>{errors.phoneNumber}</span>}
                             </div>
                         </div>
                     </div>

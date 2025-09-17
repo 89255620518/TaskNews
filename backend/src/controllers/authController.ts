@@ -33,7 +33,6 @@ const updateValidation = [
     .withMessage("Номер телефона должен содержать минимум 10 символов"),
 ];
 
-// Вспомогательная функция для обработки ошибок валидации
 const handleValidationErrors = (req: Request, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -72,7 +71,6 @@ export const register = [
         });
       }
 
-      // Создание пользователя
       const user = await User.create({
         firstName,
         lastName,
@@ -81,7 +79,7 @@ export const register = [
         password,
         phoneNumber: phoneNumber || null,
         role: "user",
-        status: "active",
+        status: "inactive",
         lastActivity: new Date(),
       });
 
@@ -142,7 +140,6 @@ export const login = [
         });
       }
 
-      // Обновляем время последней активности при входе
       await user.update({ lastActivity: new Date(), status: "active" });
 
       const payload = {
@@ -383,6 +380,24 @@ export const deleteUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+// Выход пользователя
+export const logout = async (req: Request, res: Response) => {
+  try {
+    // Здесь можно добавить логику для инвалидации токена если нужно
+    res.json({
+      success: true,
+      message: "Успешный выход из системы"
+    });
+  } catch (error: any) {
+    console.error("Ошибка при выходе:", error);
+    res.status(500).json({
+        success: false,
+        message: "Внутренняя ошибка сервера",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+}
 
 // Создание пользователя (админом)
 export const createUser = [

@@ -1,3 +1,4 @@
+// httpClient.js
 export class HttpClient {
   constructor(baseURL) {
     this.baseURL = baseURL;
@@ -7,53 +8,51 @@ export class HttpClient {
     };
   }
 
-  async _handleRequest(url, options) {
-    // Применяем interceptors запроса
-    let request = { url, options };
-    for (const interceptor of this.interceptors.request) {
-      request = await interceptor(request);
+  // httpClient.js - исправленный метод _handleRequest
+async _handleRequest(url, options) {
+  // Применяем interceptors запроса
+  let request = { url, options };
+  for (const interceptor of this.interceptors.request) {
+    request = await interceptor(request);
+  }
+
+  try {
+    const response = await fetch(`${this.baseURL}${request.url}`, request.options);
+    
+    // Проверяем статус ответа ДО попытки парсинга JSON
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login?session_expired=true';
+      return Promise.reject(new Error('Unauthorized: Invalid token'));
     }
 
+    let data;
     try {
-      const response = await fetch(`${this.baseURL}${request.url}`, request.options);
+      data = await response.json();
+    } catch (e) {
+      data = {};
+    }
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (e) {
-        data = {};
-      }
-
-      // Обработка 401 ошибки и невалидного токена
-      if (response.status === 401) {
-        if (data.detail === "Недопустимый токен.") {
-          localStorage.removeItem('token');
-          window.location.href = '/login?session_expired=true';
-          return Promise.reject('Invalid token');
-        }
-        return Promise.reject('Unauthorized');
-      }
-
-      if (!response.ok) {
-        const error = new Error(`HTTP error! status: ${response.status}`);
-        error.response = {
-          status: response.status,
-          data: data
-        };
-        throw error;
-      }
-
-      // Применяем interceptors ответа
-      for (const interceptor of this.interceptors.response) {
-        data = await interceptor(data);
-      }
-
-      return data;
-    } catch (error) {
-      console.error('API Error:', error);
+    if (!response.ok) {
+      const error = new Error(`HTTP error! status: ${response.status}`);
+      error.response = {
+        status: response.status,
+        data: data
+      };
       throw error;
     }
+
+    // Применяем interceptors ответа
+    for (const responseInterceptor of this.interceptors.response) {
+      data = await responseInterceptor(data);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
   }
+}
 
   addRequestInterceptor(interceptor) {
     this.interceptors.request.push(interceptor);
@@ -108,7 +107,7 @@ export class HttpClient {
 
     const token = localStorage.getItem('token');
     if (token) {
-      headers['Authorization'] = `Token ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     return headers;
