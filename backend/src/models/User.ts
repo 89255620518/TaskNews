@@ -5,14 +5,17 @@ interface UserAttributes {
   id: number;
   firstName: string;
   lastName: string;
+  patronymic: string;
   password: string;
   email: string;
   role: "user" | "admin";
   phoneNumber: string;
+  status: "active" | "inactive";
+  lastActivity: Date;
 }
 
 interface UserCreationAttributes
-  extends Optional<UserAttributes, "id" | "role" | "phoneNumber"> {}
+  extends Optional<UserAttributes, "id" | "role" | "phoneNumber" | "lastActivity"> {}
 
 class User
   extends Model<UserAttributes, UserCreationAttributes>
@@ -21,10 +24,13 @@ class User
   public id!: number;
   public firstName!: string;
   public lastName!: string;
+  public patronymic!: string;
   public password!: string;
   public email!: string;
   public role!: "user" | "admin";
   public phoneNumber!: string;
+  public status!: "active" | "inactive";
+  public lastActivity!: Date;
 
   public async comparePassword(password: string): Promise<boolean> {
     if (!password || !this.password) {
@@ -43,13 +49,7 @@ class User
   }
 
   static validatePhoneNumber(phone: string): boolean {
-    // Удаляем все нецифровые символы
     const cleaned = phone.replace(/\D/g, '');
-    
-    // Допустимые форматы:
-    // - 7XXXXXXXXXX (11 цифр, начинается с 7)
-    // - 8XXXXXXXXXX (11 цифр, начинается с 8 - преобразуется в 7)
-    // - XXXXXXXXXX (10 цифр)
     return /^([78]\d{10}|\d{10})$/.test(cleaned);
   }
 
@@ -59,11 +59,11 @@ class User
     const cleaned = phone.replace(/\D/g, '');
     
     if (cleaned.length === 11 && (cleaned.startsWith('7') || cleaned.startsWith('8'))) {
-      return `7${cleaned.substring(1)}`; // Сохраняем как 7XXXXXXXXXX
+      return `7${cleaned.substring(1)}`;
     }
     
     if (cleaned.length === 10) {
-      return cleaned; // Сохраняем как XXXXXXXXXX
+      return cleaned;
     }
     
     throw new Error("Invalid phone number format");
@@ -83,10 +83,6 @@ class User
         throw error;
       }
     }
-  }
-
-  static associate(models: any) {
-    // Ассоциации можно добавить здесь при необходимости
   }
 }
 
@@ -108,6 +104,13 @@ const initializeUserModel = (sequelize: Sequelize) => {
       lastName: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      patronymic: {
+        type: DataTypes.STRING,
+        allowNull: true,
         validate: {
           notEmpty: true,
         },
@@ -146,6 +149,21 @@ const initializeUserModel = (sequelize: Sequelize) => {
         },
         field: "phone_number",
       },
+      status: {
+        type: DataTypes.ENUM("active", "inactive"),
+        allowNull: false,
+        defaultValue: "active",
+        validate: {
+          isIn: [["active", "inactive"]],
+        },
+        field: "status",
+      },
+      lastActivity: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: DataTypes.NOW,
+        field: "last_activity",
+      },
     },
     {
       sequelize,
@@ -156,9 +174,11 @@ const initializeUserModel = (sequelize: Sequelize) => {
         beforeCreate: async (user) => {
           await User.hashPassword(user);
           if (!user.role) user.role = "user";
+          if (!user.status) user.status = "active";
           if (user.phoneNumber) {
             user.phoneNumber = User.normalizePhoneNumber(user.phoneNumber);
           }
+          user.lastActivity = new Date();
         },
         beforeUpdate: async (user) => {
           await User.hashPassword(user);

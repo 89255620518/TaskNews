@@ -1,25 +1,40 @@
-import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import { User } from "../models/User";
 import { body, validationResult } from "express-validator";
+import { User } from "../models/User";
 import { generateTokens } from "../utils/token";
 
-export const register = async (req: Request, res: Response) => {
-  // Базовая валидация (только те поля, что есть в модели)
-  await body("email").isEmail().normalizeEmail().run(req);
-  await body("password")
+// Валидационные правила
+const registrationValidation = [
+  body("email").isEmail().normalizeEmail().withMessage("Некорректный email"),
+  body("password")
     .isLength({ min: 6 })
-    .withMessage("Пароль должен содержать минимум 6 символов")
-    .run(req);
-  await body("phoneNumber")
+    .withMessage("Пароль должен содержать минимум 6 символов"),
+  body("firstName").notEmpty().trim().withMessage("Имя обязательно"),
+  body("lastName").notEmpty().trim().withMessage("Фамилия обязательна"),
+  body("phoneNumber")
+    .optional()
     .isLength({ min: 10 })
-    .withMessage("Пароль должен содержать минимум 10 символов")
-    .run(req);
-  await body("firstName").notEmpty().trim().run(req);
-  await body("lastName").notEmpty().trim().run(req);
+    .withMessage("Номер телефона должен содержать минимум 10 символов"),
+];
 
+const loginValidation = [
+  body("email").isEmail().normalizeEmail().withMessage("Некорректный email"),
+  body("password").notEmpty().withMessage("Пароль обязателен"),
+];
+
+const updateValidation = [
+  body("firstName").optional().isString().trim().withMessage("Имя должно быть строкой"),
+  body("lastName").optional().isString().trim().withMessage("Фамилия должна быть строкой"),
+  body("email").optional().isEmail().withMessage("Некорректный email"),
+  body("phoneNumber")
+    .optional()
+    .isLength({ min: 10 })
+    .withMessage("Номер телефона должен содержать минимум 10 символов"),
+];
+
+// Вспомогательная функция для обработки ошибок валидации
+const handleValidationErrors = (req: Request, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -28,131 +43,143 @@ export const register = async (req: Request, res: Response) => {
       errors: errors.array(),
     });
   }
-
-  const { firstName, lastName, email, password, phoneNumber } = req.body;
-
-  try {
-    // Проверка существующего пользователя
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Пользователь с этим email уже зарегистрирован",
-      });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Создание пользователя
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      password,
-      phoneNumber,
-      role: "user", // По умолчанию
-    });
-
-    const payload = {
-      id: user.id,
-      role: user.role,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-    };
-    const { accessToken, refreshToken } = generateTokens(payload);
-
-    return res.status(201).json({
-      success: true,
-      message: "Пользователь успешно зарегистрирован",
-      accessToken,
-      refreshToken,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-      },
-    });
-  } catch (error: any) {
-    console.error("Ошибка при регистрации:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Ошибка при регистрации",
-    });
-  }
+  return null;
 };
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Email и пароль обязательны",
-    });
-  }
-
-  try {
-    const user = await User.findOne({
-      where: { email },
-      attributes: ["id", "email", "password", "firstName", "phoneNumber", "lastName", "role"],
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Неверный email или пароль",
-      });
-    }
-
-    const isMatch = await user.comparePassword(password);
-
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Неверный email или пароль",
-      });
-    }
-
-    const payload = {
-      id: user.id,
-      role: user.role,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-    };
-
-    const { accessToken, refreshToken } = generateTokens(payload);
-
-    res.json({
-      success: true,
-      accessToken,
-      refreshToken,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-      },
-    });
-  } catch (error: any) {
-    console.error("Ошибка при входе:", error);
-    res.status(500).json({
-      success: false,
-      message: "Внутренняя ошибка сервера",
-    });
-  }
+// Вспомогательная функция для безопасного возврата данных пользователя
+const getSafeUserData = (user: User) => {
+  const userData = user.toJSON();
+  const { password, ...safeUserData } = userData;
+  return safeUserData;
 };
 
+// Регистрация пользователя
+export const register = [
+  ...registrationValidation,
+  async (req: Request, res: Response) => {
+    const validationError = handleValidationErrors(req, res);
+    if (validationError) return validationError;
+
+    const { firstName, lastName, patronymic, email, password, phoneNumber } = req.body;
+
+    try {
+      // Проверка существующего пользователя
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Пользователь с этим email уже зарегистрирован",
+        });
+      }
+
+      // Создание пользователя
+      const user = await User.create({
+        firstName,
+        lastName,
+        patronymic: patronymic || null,
+        email,
+        password,
+        phoneNumber: phoneNumber || null,
+        role: "user",
+        status: "active",
+        lastActivity: new Date(),
+      });
+
+      const payload = {
+        id: user.id,
+        role: user.role,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      };
+
+      const { accessToken, refreshToken } = generateTokens(payload);
+
+      return res.status(201).json({
+        success: true,
+        message: "Пользователь успешно зарегистрирован",
+        accessToken,
+        refreshToken,
+        user: getSafeUserData(user),
+      });
+    } catch (error: any) {
+      console.error("Ошибка при регистрации:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Ошибка при регистрации",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+  },
+];
+
+// Вход пользователя
+export const login = [
+  ...loginValidation,
+  async (req: Request, res: Response) => {
+    const validationError = handleValidationErrors(req, res);
+    if (validationError) return validationError;
+
+    const { email, password } = req.body;
+
+    try {
+      const user = await User.findOne({
+        where: { email },
+        attributes: { include: ["password"] },
+      });
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Неверный email или пароль",
+        });
+      }
+
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: "Неверный email или пароль",
+        });
+      }
+
+      // Обновляем время последней активности при входе
+      await user.update({ lastActivity: new Date(), status: "active" });
+
+      const payload = {
+        id: user.id,
+        role: user.role,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      };
+
+      const { accessToken, refreshToken } = generateTokens(payload);
+
+      res.json({
+        success: true,
+        accessToken,
+        refreshToken,
+        user: getSafeUserData(user),
+      });
+    } catch (error: any) {
+      console.error("Ошибка при входе:", error);
+      res.status(500).json({
+        success: false,
+        message: "Внутренняя ошибка сервера",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+  },
+];
+
+// Обновление токена
 export const refresh = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    return res.status(401).json({ message: "Нет refresh токена" });
+    return res.status(401).json({ 
+      success: false,
+      message: "Нет refresh токена" 
+    });
   }
 
   try {
@@ -161,65 +188,286 @@ export const refresh = async (req: Request, res: Response) => {
       process.env.JWT_REFRESH_SECRET || "refresh_secret_key"
     ) as { id: number; role: string };
 
-    const payload = { id: decoded.id, role: decoded.role };
-    const { accessToken, refreshToken: newRefreshToken } =
-      generateTokens(payload);
-
-    res.json({ accessToken, refreshToken: newRefreshToken });
-  } catch (error) {
-    res.status(403).json({ message: "Невалидный или истёкший refresh токен" });
-  }
-};
-
-export const updateUser = async (req: Request, res: Response) => {
-  await body("firstName").optional().isString().run(req);
-  await body("lastName").optional().isString().run(req);
-  await body("email").optional().isString().run(req);
-  await body("phoneNumber")
-  .optional()
-  .isLength({ min: 10 })
-  .withMessage("Пароль должен содержать минимум 10 символов")
-  .run(req);
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
-
-  try {
-    const userId = (req as any).user?.id;
-
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Не авторизован" });
-    }
-
-    const user = await User.findByPk(userId);
+    // Получаем пользователя для обновленных данных
+    const user = await User.findByPk(decoded.id);
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Пользователь не найден" });
+      return res.status(404).json({
+        success: false,
+        message: "Пользователь не найден",
+      });
     }
 
-    const { firstName, lastName, email, phoneNumber } = req.body;
-    if (firstName !== undefined) user.firstName = firstName;
-    if (lastName !== undefined) user.lastName = lastName;
-    if (email !== undefined) user.email = email;
-    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
-
-    await user.save();
-
-    const userData = user.get();
-    const { password, ...safeUserData } = userData;
+    const payload = {
+      id: user.id,
+      role: user.role,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+    };
+    
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(payload);
 
     res.json({
       success: true,
-      message: "Профиль обновлен",
-      user: safeUserData,
+      accessToken,
+      refreshToken: newRefreshToken,
     });
   } catch (error) {
-    console.error("Ошибка при обновлении профиля:", error);
-    res.status(500).json({ success: false, message: "Ошибка сервера" });
+    res.status(403).json({
+      success: false,
+      message: "Невалидный или истёкший refresh токен",
+    });
+  }
+};
+
+// Обновление профиля пользователя
+export const updateUser = [
+  ...updateValidation,
+  async (req: Request, res: Response) => {
+    const validationError = handleValidationErrors(req, res);
+    if (validationError) return validationError;
+
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "Не авторизован",
+        });
+      }
+
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Пользователь не найден",
+        });
+      }
+
+      const { firstName, lastName, patronymic, email, phoneNumber } = req.body;
+      
+      // Проверка email на уникальность, если он изменяется
+      if (email && email !== user.email) {
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+          return res.status(400).json({
+            success: false,
+            message: "Пользователь с этим email уже существует",
+          });
+        }
+      }
+
+      // Обновление полей
+      if (firstName !== undefined) user.firstName = firstName;
+      if (lastName !== undefined) user.lastName = lastName;
+      if (patronymic !== undefined) user.patronymic = patronymic;
+      if (email !== undefined) user.email = email;
+      if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: "Профиль обновлен",
+        user: getSafeUserData(user),
+      });
+    } catch (error: any) {
+      console.error("Ошибка при обновлении профиля:", error);
+      res.status(500).json({
+        success: false,
+        message: "Ошибка сервера",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+  },
+];
+
+// Получение пользователя по ID
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id, {
+      attributes: ["id", "firstName", "lastName", "patronymic", "email", "phoneNumber", "role", "status", "lastActivity", "createdAt", "updatedAt"],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Пользователь не найден",
+      });
+    }
+
+    res.json({
+      success: true,
+      user: getSafeUserData(user),
+    });
+  } catch (error: any) {
+    console.error("Ошибка при получении пользователя:", error);
+    res.status(500).json({
+      success: false,
+      message: "Ошибка сервера",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+// Получение всех пользователей
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: users } = await User.findAndCountAll({
+      attributes: ["id", "firstName", "lastName", "patronymic", "email", "phoneNumber", "role", "status", "lastActivity", "createdAt", "updatedAt"],
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({
+      success: true,
+      users,
+      pagination: {
+        page,
+        limit,
+        total: count,
+        pages: Math.ceil(count / limit),
+      },
+    });
+  } catch (error: any) {
+    console.error("Ошибка при получении пользователей:", error);
+    res.status(500).json({
+      success: false,
+      message: "Ошибка сервера",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+// Удаление пользователя
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const currentUserId = req.user?.id;
+
+    // Нельзя удалить самого себя
+    if (parseInt(id) === currentUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "Нельзя удалить собственный аккаунт",
+      });
+    }
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Пользователь не найден",
+      });
+    }
+
+    await user.destroy();
+
+    res.json({
+      success: true,
+      message: "Пользователь успешно удален",
+    });
+  } catch (error: any) {
+    console.error("Ошибка при удалении пользователя:", error);
+    res.status(500).json({
+      success: false,
+      message: "Ошибка сервера",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+// Создание пользователя (админом)
+export const createUser = [
+  ...registrationValidation,
+  async (req: Request, res: Response) => {
+    const validationError = handleValidationErrors(req, res);
+    if (validationError) return validationError;
+
+    const { firstName, lastName, patronymic, email, password, phoneNumber, role, status } = req.body;
+
+    try {
+      // Проверка существующего пользователя
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Пользователь с этим email уже существует",
+        });
+      }
+
+      // Создание пользователя
+      const user = await User.create({
+        firstName,
+        lastName,
+        patronymic: patronymic || null,
+        email,
+        password,
+        phoneNumber: phoneNumber || null,
+        role: role || "user",
+        status: status || "active",
+        lastActivity: new Date(),
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Пользователь успешно создан",
+        user: getSafeUserData(user),
+      });
+    } catch (error: any) {
+      console.error("Ошибка при создании пользователя:", error);
+      res.status(500).json({
+        success: false,
+        message: "Ошибка при создании пользователя",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+  },
+];
+
+// Получение информации об активности пользователя
+export const getUserActivity = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Не авторизован",
+      });
+    }
+
+    const user = await User.findByPk(userId, {
+      attributes: ["id", "status", "lastActivity"]
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Пользователь не найден",
+      });
+    }
+
+    res.json({
+      success: true,
+      activity: {
+        status: user.status,
+        lastActivity: user.lastActivity,
+        isOnline: user.status === "active"
+      }
+    });
+  } catch (error: any) {
+    console.error("Ошибка при получении активности:", error);
+    res.status(500).json({
+      success: false,
+      message: "Ошибка сервера",
+    });
   }
 };
