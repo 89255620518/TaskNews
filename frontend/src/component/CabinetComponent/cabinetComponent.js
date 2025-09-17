@@ -1,21 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../useContext/AuthContext';
-import { useBasket } from '../../useContext/basketContext'; // Импортируем useBasket
 import { api } from '../../api/api';
 import styles from './cabinet.module.scss';
 
 const CabinetComponent = () => {
     const navigate = useNavigate();
     const { token, logout: authLogout } = useAuth();
-    const { orderHistory, historyLoading, historyError } = useBasket(); // Получаем данные из контекста
 
     const [userData, setUserData] = useState({
         first_name: '',
         last_name: '',
         phone: '',
         email: '',
-        delivery_address: '',
         floor: '',
         intercom: '',
         comment: ''
@@ -26,7 +23,6 @@ const CabinetComponent = () => {
     const [isDataModalOpen, setIsDataModalOpen] = useState(false);
     const [isOrdersOpen, setIsOrdersOpen] = useState(false);
 
-    // Функции для работы с телефоном
     const handlePhoneChange = useCallback((value) => {
         let cleaned = value.replace(/[^\d+]/g, '');
         if (!cleaned.startsWith('+7')) {
@@ -65,7 +61,6 @@ const CabinetComponent = () => {
         }
     }, [handlePhoneChange]);
 
-    // Загрузка данных пользователя
     useEffect(() => {
         if (!token) {
             navigate('/login');
@@ -115,25 +110,6 @@ const CabinetComponent = () => {
         navigate('/');
     };
 
-    // Функция для форматирования статуса заказа
-    const formatOrderStatus = (status) => {
-        const statusMap = {
-            'created': 'Создан',
-            'processing': 'В обработке',
-            'delivering': 'Доставляется',
-            'completed': 'Завершен',
-            'cancelled': 'Отменен'
-        };
-        return statusMap[status] || status;
-    };
-
-    if (loading || historyLoading) {
-        return <div className={styles.loading}>Загрузка данных...</div>;
-    }
-
-    if (error || historyError) {
-        return <div className={styles.error}>{error || historyError}</div>;
-    }
 
     return (
         <div className={styles.containerCabinet}>
@@ -147,14 +123,6 @@ const CabinetComponent = () => {
                 <button onClick={() => setIsDataModalOpen(true)} className={styles.menuButton}>
                     <span className={styles.icon}>🤵</span>
                     <span>Редактировать профиль</span>
-                </button>
-
-                <button
-                    onClick={() => setIsOrdersOpen(!isOrdersOpen)}
-                    className={styles.menuButton}
-                >
-                    <span className={styles.icon}>📦</span>
-                    <span>Мои заказы ({orderHistory.length})</span>
                 </button>
 
                 <button
@@ -203,46 +171,6 @@ const CabinetComponent = () => {
                             />
                         </div>
 
-                        <div className={styles.formGroup}>
-                            <label>Адрес доставки</label>
-                            <input
-                                type="text"
-                                name="delivery_address"
-                                value={userData.delivery_address}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label>Этаж</label>
-                            <input
-                                type="number"
-                                name="floor"
-                                value={userData.floor}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label>Домофон</label>
-                            <input
-                                type="text"
-                                name="intercom"
-                                value={userData.intercom}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label>Комментарий</label>
-                            <textarea
-                                className={styles.formGroup_textarea}
-                                name="comment"
-                                value={userData.comment}
-                                onChange={handleChange}
-                            />
-                        </div>
-
                         <div className={styles.modalButtons}>
                             <button
                                 onClick={() => setIsDataModalOpen(false)}
@@ -259,54 +187,6 @@ const CabinetComponent = () => {
                             </button>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {isOrdersOpen && (
-                <div className={styles.ordersSection}>
-                    <h3>История заказов</h3>
-                    {orderHistory.length > 0 ? (
-                        <div className={styles.ordersList}>
-                            {orderHistory.map(order => (
-                                <div key={order.id} className={styles.orderItem}>
-                                    <div className={styles.orderHeader}>
-                                        <span>Заказ #{order.id}</span>
-                                        <span>{new Date(order.created_at).toLocaleDateString('ru-RU', {
-                                            day: 'numeric',
-                                            month: 'long',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}</span>
-                                        <span>{order.final_price} ₽</span>
-                                    </div>
-                                    <div className={`${styles.orderStatus} ${order.status === 'completed' ? styles.completed : ''}`}>
-                                        Статус: {formatOrderStatus(order.status)}
-                                    </div>
-                                    <div className={styles.orderAddress}>
-                                        Адрес доставки: {order.address}
-                                    </div>
-                                    <div className={styles.orderProducts}>
-                                        {order.goods.map((item, index) => (
-                                            <div key={index} className={styles.orderProduct}>
-                                                {item.title} × {item.count} ({item.price} ₽)
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className={styles.noOrders}>
-                            <p>Вы еще не сделали ни одного заказа</p>
-                            <button 
-                                onClick={() => navigate('/menu')}
-                                className={styles.orderButton}
-                            >
-                                Сделать первый заказ
-                            </button>
-                        </div>
-                    )}
                 </div>
             )}
         </div>

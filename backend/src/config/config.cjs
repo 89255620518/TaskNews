@@ -1,3 +1,77 @@
+
+
+// const { Sequelize } = require("sequelize");
+// const dotenv = require('dotenv');
+
+// dotenv.config();
+
+// const config = {
+//   development: {
+//     username: process.env.DB_USER || "postgres",
+//     password: process.env.DB_PASSWORD || "Restart.1996",
+//     database: process.env.DB_NAME || "shashlandiaServer",
+//     host: process.env.DB_HOST || "localhost",
+//     port: process.env.DB_PORT || 5432,
+//     dialect: "postgres",
+//     migrationStorageTableName: 'sequelize_meta',
+//     define: {
+//       underscored: true,
+//       timestamps: true,
+//       createdAt: "created_at",
+//       updatedAt: "updated_at",
+//     },
+//     seederStorage: "sequelize",
+//     seederStorageTableName: "sequelize_data"
+//   },
+//   test: {
+//     username: process.env.DB_USER || "postgres",
+//     password: process.env.DB_PASSWORD || "Restart.1996",
+//     database: process.env.DB_NAME || "shashlandiaServer",
+//     host: process.env.DB_HOST || "localhost",
+//     dialect: "postgres",
+//     migrationStorageTableName: 'sequelize_meta',
+//     define: {
+//       underscored: true,
+//       timestamps: true,
+//       createdAt: "created_at",
+//       updatedAt: "updated_at",
+//     }
+//   },
+//   production: {
+//     username: process.env.DB_USER || "postgres",
+//     password: process.env.DB_PASSWORD || "Restart.1996",
+//     database: process.env.DB_NAME || "shashlandiaServer",
+//     host: process.env.DB_HOST || "localhost",
+//     dialect: "postgres",
+//     migrationStorageTableName: 'sequelize_meta',
+//     define: {
+//       underscored: true,
+//       timestamps: true,
+//       createdAt: "created_at",
+//       updatedAt: "updated_at",
+//     }
+//   }
+// };
+
+// const env = process.env.NODE_ENV || "development";
+// const dbConfig = config[env];
+
+// const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+//   host: dbConfig.host,
+//   port: dbConfig.port,
+//   dialect: dbConfig.dialect,
+//   define: dbConfig.define,
+//   migrationStorageTableName: dbConfig.migrationStorageTableName
+// });
+
+// module.exports = {
+//   development: dbConfig,
+//   test: config.test,
+//   production: config.production,
+//   sequelize
+// };
+
+
 const { Sequelize } = require("sequelize");
 const dotenv = require('dotenv');
 
@@ -5,9 +79,9 @@ dotenv.config();
 
 const config = {
   development: {
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "Restart.1996",
-    database: process.env.DB_NAME || "pominki-dostavka_db",
+    username: process.env.DB_USER || "shashlandia",
+    password: process.env.DB_PASSWORD || "ваш_пароль",
+    database: process.env.DB_NAME || "shashlandia_db",
     host: process.env.DB_HOST || "localhost",
     port: process.env.DB_PORT || 5432,
     dialect: "postgres",
@@ -17,7 +91,6 @@ const config = {
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
-      timestampsWithTimezone: true,
     },
     seederStorage: "sequelize",
     seederStorageTableName: "sequelize_data"
@@ -25,7 +98,7 @@ const config = {
   test: {
     username: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "Restart.1996",
-    database: process.env.DB_NAME || "pominki-dostavka_db",
+    database: process.env.DB_NAME || "shashlandiaServer",
     host: process.env.DB_HOST || "localhost",
     dialect: "postgres",
     migrationStorageTableName: 'sequelize_meta',
@@ -34,13 +107,12 @@ const config = {
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
-      timestampsWithTimezone: true,
     }
   },
   production: {
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "Restart.1996",
-    database: process.env.DB_NAME || "pominki-dostavka_db",
+    username: process.env.DB_USER || "shashlandia",
+    password: process.env.DB_PASSWORD || "ваш_пароль",
+    database: process.env.DB_NAME || "shashlandia_db",
     host: process.env.DB_HOST || "localhost",
     dialect: "postgres",
     migrationStorageTableName: 'sequelize_meta',
@@ -49,7 +121,6 @@ const config = {
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
-      timestampsWithTimezone: true,
     }
   }
 };

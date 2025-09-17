@@ -6,9 +6,7 @@ const CabinetPage = () => {
     return (
         <div style={{ background: "#ffffff" }}>
             <Helmet>
-                <title>Дали-Хинкали/Личный кабинет</title>
-                <meta name="description" content="В Дали-Хинкали бесплатная доставка по Орехово-Зуевскому району" />
-                <meta name="yandex-verification" content="c2e397d2d61662dc" />
+                <title>ТЗ/Личный кабинет</title>
             </Helmet>
             <CabinetComponent />
         </div>

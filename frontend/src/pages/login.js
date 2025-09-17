@@ -7,9 +7,7 @@ const LoginPage = () => {
     return (
         <div style={{ background: "#ffffff" }}>
             <Helmet>
-                <title>Дали-Хинкали/Авторизация</title>
-                <meta name="description" content="В Дали-Хинкали бесплатная доставка по Орехово-Зуевскому району" />
-                <meta name="yandex-verification" content="c2e397d2d61662dc" />
+                <title>ТЗ/Авторизация</title>
             </Helmet>
             <LoginComponent />
         </div>
