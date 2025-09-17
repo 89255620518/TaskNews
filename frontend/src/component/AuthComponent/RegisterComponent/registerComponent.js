@@ -135,14 +135,11 @@ const RegisterComponent = () => {
 
             console.log('Отправка данных:', userData);
 
-            // Вызов API регистрации
             const response = await api.users.register(userData);
 
-            // Обработка успешной регистрации
             setIsSuccess(true);
             console.log('Успешная регистрация:', response);
 
-            // Сохранение токенов
             if (response.accessToken) {
                 localStorage.setItem('token', response.accessToken);
             }
@@ -150,19 +147,16 @@ const RegisterComponent = () => {
                 localStorage.setItem('refreshToken', response.refreshToken);
             }
 
-            // Перенаправление на логин
             setTimeout(() => navigate('/login'), 3000);
 
         } catch (error) {
             console.error('Ошибка регистрации:', error);
 
-            // Обрабатываем ошибку
             const apiErrors = error.response?.data || {};
             console.log('Детали ошибки от сервера:', apiErrors);
 
             const formErrors = {};
 
-            // Обработка ошибок email
             if (apiErrors.email) {
                 formErrors.email = Array.isArray(apiErrors.email)
                     ? apiErrors.email.join(' ')
@@ -171,7 +165,6 @@ const RegisterComponent = () => {
                 formErrors.email = 'Пользователь с таким email уже зарегистрирован';
             }
 
-            // Обработка ошибок телефона
             if (apiErrors.phoneNumber) {
                 formErrors.phoneNumber = Array.isArray(apiErrors.phoneNumber)
                     ? apiErrors.phoneNumber.join(' ')
@@ -180,28 +173,24 @@ const RegisterComponent = () => {
                 formErrors.phoneNumber = 'Этот номер телефона уже используется';
             }
 
-            // Обработка ошибок имени
             if (apiErrors.firstName) {
                 formErrors.firstName = Array.isArray(apiErrors.firstName)
                     ? apiErrors.firstName.join(' ')
                     : apiErrors.firstName;
             }
 
-            // Обработка ошибок фамилии
             if (apiErrors.lastName) {
                 formErrors.lastName = Array.isArray(apiErrors.lastName)
                     ? apiErrors.lastName.join(' ')
                     : apiErrors.lastName;
             }
 
-            // Обработка ошибок пароля
             if (apiErrors.password) {
                 formErrors.password = Array.isArray(apiErrors.password)
                     ? apiErrors.password.join(' ')
                     : apiErrors.password;
             }
 
-            // Общие ошибки
             if (apiErrors.message) {
                 formErrors.general = apiErrors.message;
             } else if (apiErrors.non_field_errors) {
@@ -210,7 +199,6 @@ const RegisterComponent = () => {
                     : apiErrors.non_field_errors;
             }
 
-            // Если не получили конкретных ошибок от сервера
             if (Object.keys(formErrors).length === 0) {
                 formErrors.general = 'Произошла ошибка при регистрации. Пожалуйста, проверьте введенные данные.';
             }

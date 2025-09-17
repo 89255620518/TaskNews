@@ -25,18 +25,15 @@ const LoginComponent = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [authError, setAuthError] = useState('');
+    const [authError, setAuthError] = useState('')
 
-    // Обработчик изменения номера телефона с форматированием
     const handlePhoneChange = useCallback((value) => {
         let cleaned = value.replace(/[^\d+]/g, '');
 
-        // Убедимся, что номер начинается с +7
         if (!cleaned.startsWith('+7')) {
             cleaned = '+7' + cleaned.replace(/^\+/, '');
         }
 
-        // Ограничим длину номера
         if (cleaned.length > 12) {
             cleaned = cleaned.substring(0, 12);
         }
@@ -44,7 +41,6 @@ const LoginComponent = () => {
         return cleaned;
     }, []);
 
-    // Форматирование номера телефона для отображения
     const formatPhoneDisplay = useCallback((phone) => {
         if (!phone) return '+7';
         const digits = phone.replace(/\D/g, '').substring(1);
@@ -137,7 +133,6 @@ const LoginComponent = () => {
                 password: formData.password
             };
 
-            // Используем метод login из api.users
             const response = await api.users.login(credentials);
 
             if (response.success && response.accessToken) {
@@ -154,7 +149,6 @@ const LoginComponent = () => {
         } catch (error) {
             console.error('Ошибка авторизации:', error);
             
-            // Обрабатываем различные форматы ошибок от API
             if (error.response?.data) {
                 const errorData = error.response.data;
                 setAuthError(
@@ -188,7 +182,6 @@ const LoginComponent = () => {
             }`;
     };
 
-    // Получаем отображаемое значение для поля ввода
     const getDisplayValue = () => {
         return loginType === 'phone'
             ? formatPhoneDisplay(formData.login)

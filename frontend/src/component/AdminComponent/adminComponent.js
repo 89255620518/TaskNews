@@ -15,7 +15,6 @@ const AdminComponent = () => {
   const [showModal, setShowModal] = useState(false);
   const [adminData, setAdminData] = useState(null);
 
-  // Функция для получения данных администратора
   const fetchAdminData = useCallback(async () => {
     try {
       const response = await api.users.getMe();
@@ -23,7 +22,6 @@ const AdminComponent = () => {
       if (response.success) {
         const userData = response.user || response;
         
-        // Проверяем роль пользователя
         if (userData.role !== 'admin') {
           setError('Доступ запрещен. Требуются права администратора');
           setTimeout(() => {
@@ -50,7 +48,6 @@ const AdminComponent = () => {
     }
   }, []);
 
-  // Функция для загрузки пользователей
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -110,7 +107,6 @@ const AdminComponent = () => {
   }, [token, fetchAdminData, fetchUsers]);
 
   useEffect(() => {
-    // Фильтрация пользователей
     switch (currentView) {
       case 'all':
         setFilteredUsers(users);
@@ -261,7 +257,6 @@ const AdminComponent = () => {
 
   return (
     <div className={styles.adminContainer}>
-      {/* Шапка администратора */}
       <div className={styles.adminHeader}>
         <h1 className={styles.adminTitle}>Панель администратора</h1>
         
@@ -272,7 +267,6 @@ const AdminComponent = () => {
           <p><strong>Последний вход:</strong> {adminData.lastLogin}</p>
         </div>
 
-        {/* Навигация */}
         <div className={styles.adminNav}>
           <button 
             className={`${styles.navButton} ${currentView === 'all' ? styles.active : ''}`}
@@ -295,7 +289,6 @@ const AdminComponent = () => {
         </div>
       </div>
 
-      {/* Сообщения об ошибках */}
       {error && !error.includes('администратора') && (
         <div className={styles.error}>
           {error}
@@ -303,14 +296,12 @@ const AdminComponent = () => {
         </div>
       )}
 
-      {/* Загрузка */}
       {loading && (
         <div className={styles.loading}>
           Загрузка данных...
         </div>
       )}
 
-      {/* Список пользователей */}
       {!loading && filteredUsers.length > 0 && (
         <div className={styles.usersGrid}>
           {filteredUsers.map(user => (
@@ -361,7 +352,6 @@ const AdminComponent = () => {
         </div>
       )}
 
-      {/* Сообщение если нет пользователей */}
       {!loading && filteredUsers.length === 0 && (
         <div className={styles.error}>
           {currentView === 'all' ? 'Нет пользователей' : 
@@ -370,7 +360,6 @@ const AdminComponent = () => {
         </div>
       )}
 
-      {/* Модальное окно редактирования */}
       {showModal && (
         <EditUserModal
           user={editingUser}
@@ -388,8 +377,7 @@ const AdminComponent = () => {
   );
 };
 
-// Компонент модального окна редактирования
-const EditUserModal = ({ user, onSave, onClose, getRoleDisplay, getStatusDisplay }) => {
+const EditUserModal = ({ user, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
