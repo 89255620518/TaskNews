@@ -8,6 +8,7 @@ import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './useContext/AuthContext';
+import AdminPage from './pages/admin';
 
 const ProtectedRoute = ({ children }) => {
   const { token, isLoading } = useAuth();
@@ -35,6 +36,14 @@ const routes = [
     element: (
       <ProtectedRoute>
         <CabinetPage />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/admin', 
+    element: (
+      <ProtectedRoute>
+        <AdminPage />
       </ProtectedRoute>
     ) 
   },

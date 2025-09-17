@@ -9,8 +9,6 @@ const Header = ({
     isModalOpen,
 }) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1000);
-    const navigate = useNavigate();
-    const location = useLocation();
     const { token } = useAuth();
 
     useEffect(() => {
@@ -48,7 +46,7 @@ const Header = ({
 
                         {token ? (
                             <>
-                                <Link to="/cabinet" onClick={modalClosed} className={styles.iconButton}>🤵</Link>
+                                <Link to="/admin" onClick={modalClosed} className={styles.authButton}>Админ</Link>
                             </>
                         ) : (
                             <>
@@ -66,7 +64,7 @@ const Header = ({
 
                         {token ? (
                             <div className={styles.cartCabinet}>
-                                <Link to="/cabinet" onClick={modalClosed} className={styles.iconButton}>🤵</Link>
+                                <Link to="/admin" onClick={modalClosed} className={styles.authButton}>Админ</Link>
                             </div>
                         ) : (
                             <>

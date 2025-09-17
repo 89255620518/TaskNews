@@ -317,10 +317,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: users } = await User.findAndCountAll({
-      attributes: ["id", "firstName", "lastName", "patronymic", "email", "phoneNumber", "role", "status", "lastActivity", "createdAt", "updatedAt"],
+      attributes: ["id", "firstName", "lastName", "patronymic", "email", "phoneNumber", "role", "status", "lastActivity", "created_at", "updated_at"],
       limit,
       offset,
-      order: [["createdAt", "DESC"]],
+      order: [["created_at", "DESC"]],
     });
 
     res.json({

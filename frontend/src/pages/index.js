@@ -15,7 +15,7 @@ const HomePage = () => {
   }
 
   return (
-    <div style={{ background: "#ffffff" }}>
+    <div style={{ background: "#ffffff"  }}>
       <Helmet>
         <title>Тестовое задание</title>
       </Helmet>
