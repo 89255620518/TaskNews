@@ -1,232 +1,477 @@
 .containerHeader {
-    background-color: #a54807;
-    ;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    padding: 10px;
-    z-index: 100;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .webAppBackButton {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--tg-theme-text-color, #000000);
-    font-size: 16px;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+  padding: 8px 16px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.05);
+  }
 }
 
 .headerContent {
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1500px;
-    display: flex;
-    flex-direction: row;
-    margin: 0 auto;
-    gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1500px;
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 70px;
+  position: relative;
 }
 
 .cartCabinet {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 15px;
 }
 
 .logo {
-    height: 40px;
-    width: auto;
+  height: 45px;
+  width: auto;
+  filter: brightness(0) invert(1);
 }
 
+/* Burger Menu */
 .burgerButton {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 20px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+  position: relative;
 
-    span {
-        display: block;
-        width: 100%;
-        height: 3px;
-        background: #fff;
-        border-radius: 2px;
-        transition: all 0.3s ease;
+  span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: #fff;
+    border-radius: 3px;
+    transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    transform-origin: center;
+  }
+
+  &.open {
+    span:nth-child(1) {
+      transform: translateY(10.5px) rotate(45deg);
+      background: #fff;
     }
 
-    &.open {
-        span:nth-child(1) {
-            transform: translateY(8px) rotate(45deg);
-        }
-
-        span:nth-child(2) {
-            opacity: 0;
-        }
-
-        span:nth-child(3) {
-            transform: translateY(-8px) rotate(-45deg);
-        }
+    span:nth-child(2) {
+      opacity: 0;
+      transform: scale(0);
     }
+
+    span:nth-child(3) {
+      transform: translateY(-10.5px) rotate(-45deg);
+      background: #fff;
+    }
+  }
 }
 
+/* Fixed Mobile Menu - Full Screen */
 .mobileMenu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #F69049;
-    z-index: 5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.98) 0%, rgba(247, 147, 30, 0.98) 100%);
+  z-index: 9999; // Увеличиваем z-index
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(15px);
+  animation: slideIn 0.3s ease-out;
+  overflow: hidden;
 }
 
-.logoContainer {
-    width: 100%;
-    text-align: center;
-
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobileMenuContent {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 40px;
+
+  a,
+  button {
+    color: white;
+    text-decoration: none;
+    font-size: 1.4rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 15px 30px;
     width: 100%;
+    text-align: center;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 
-    a,
-    button {
-        color: white;
-        text-decoration: none;
-        font-size: 1.2rem;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 10px 0;
-        width: 100%;
-        text-align: center;
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-    }
-}
-
-.desktopMenu {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    justify-content: space-between;
-
-    .iconButton {
-        font-size: 1.5rem !important;
-        width: 70px;
-    }
-
-    a,
-    button {
-        max-width: 200px;
-        color: white;
-        text-decoration: none;
-        font-size: 1rem;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 5px 10px;
-
-        &:hover {
-            text-decoration: underline;
-        }
-    }
-}
-
-.buttonLinks {
-    width: 100%;
-}
-
-.authButton {
-    background: white;
-    color: #F69049 !important;
-    padding: 8px 15px !important;
-    border-radius: 20px;
-    font-weight: bold;
-
-    @media screen and (max-width: 600px) {
-        padding: 4px 8px !important;
-        font-size: 14px;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
     }
 
     &:hover {
-        background: #f0f0f0 !important;
-        text-decoration: none !important;
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+      &::before {
+        left: 100%;
+      }
     }
+
+    &.active {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
 }
 
-.iconButton {
-    font-size: 1.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    color: #F69049 !important;
+.mobileAuthSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  z-index: 1002; // Выше чем модальное окно
 }
 
+.userInfoMobile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-weight: 500;
+}
 
-.cartIcon {
-    position: relative;
+.userName {
+  font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Desktop Menu */
+.desktopMenu {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  justify-content: space-between;
+
+  .buttonLinks {
     display: flex;
+    gap: 25px;
     align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    color: #333;
+  }
+
+  a,
+  button {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 12px;
     transition: all 0.3s ease;
+    position: relative;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+
+    &.active {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
 }
 
-.cartIcon:hover {
-    color: #ff6b6b;
-    transform: scale(1.1);
+/* Auth Buttons */
+.authButton {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  color: #ff6b35 !important;
+  padding: 10px 20px !important;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+
+  &:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    text-decoration: none !important;
+  }
+
+  &.active {
+    border: 2px solid rgba(255, 107, 53, 0.5);
+  }
+}
+
+.registerButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  
+  &:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+}
+
+.adminButton {
+  background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+  color: white !important;
+  
+  &:hover {
+    background: linear-gradient(135deg, #19547b 0%, #ffd89b 100%);
+  }
+}
+
+/* User Section */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: white;
+  
+  .userName {
+    font-weight: 600;
+    font-size: 15px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .userRole {
+    font-size: 12px;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+}
+
+.authSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Logout Buttons */
+.logoutButton {
+  background: rgba(255, 255, 255, 0.15);
+  color: white !important;
+  padding: 10px 20px !important;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.logoutButtonMobile {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+/* Cart Icon */
+.cartIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  color: white;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .cartSvg {
-    width: 24px;
-    height: 24px;
-    fill: currentColor;
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
 }
 
 .cartCount {
-    position: absolute;
-    top: -5px;
-    right: -12px;
-    background-color: #ff6b6b;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  border: 2px solid #ff6b35;
 }
 
 .cartIcon:hover .cartCount {
-    background-color: #ff4757;
-    transform: scale(1.1);
+  background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+  transform: scale(1.15);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1000px) {
+  .headerContent {
+    padding: 0 15px;
+    height: 65px;
+  }
+  
+  .mobileAuthSection {
+    gap: 8px;
+  }
+  
+  .authButton {
+    padding: 8px 16px !important;
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .headerContent {
+    padding: 0 10px;
+    height: 60px;
+  }
+  
+  .userName {
+    font-size: 12px;
+  }
+  
+  .authButton {
+    padding: 6px 12px !important;
+    font-size: 12px;
+  }
+  
+  .mobileMenuContent {
+    gap: 20px;
+    padding: 0 20px;
+    
+    a,
+    button {
+      font-size: 1.2rem;
+      padding: 12px 20px;
+    }
+  }
+}
+
+/* Animation for menu items */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobileMenuContent a,
+.mobileMenuContent button {
+  animation: fadeInUp 0.5s ease forwards;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+}
+
+/* Ensure body doesn't scroll when modal is open */
+body.menu-open {
+  overflow: hidden;
 }

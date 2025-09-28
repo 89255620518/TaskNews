@@ -8,8 +8,7 @@ const CabinetComponent = () => {
     const navigate = useNavigate();
     const { 
         token, 
-        user, 
-        userRole, 
+        user,
         logout: authLogout, 
         updateProfile,
         isAuthenticated 
@@ -21,8 +20,7 @@ const CabinetComponent = () => {
         patronymic: '',
         phone: '',
         email: '',
-        role: '',
-        status: ''
+        role: ''
     });
 
     const [loading, setLoading] = useState(true);
@@ -62,7 +60,6 @@ const CabinetComponent = () => {
         return roleMap[role] || role;
     }, []);
 
-
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
 
@@ -93,13 +90,12 @@ const CabinetComponent = () => {
                 patronymic: user.patronymic || '',
                 phone: user.phone || user.phone_number || user.phoneNumber || '',
                 email: user.email || '',
-                role: user.role || 'user',
+                role: user.role || 'user'
             });
             setLoading(false);
             return;
         }
 
-        // Если данных нет в контексте, загружаем через API
         const fetchUserData = async () => {
             try {
                 setLoading(true);
@@ -116,7 +112,7 @@ const CabinetComponent = () => {
                         patronymic: userDataFromResponse.patronymic || '',
                         phone: userDataFromResponse.phone || userDataFromResponse.phone_number || userDataFromResponse.phoneNumber || '',
                         email: userDataFromResponse.email || '',
-                        role: userDataFromResponse.role || 'user',
+                        role: userDataFromResponse.role || 'user'
                     });
                 } else {
                     setError(response.data?.message || 'Не удалось загрузить данные пользователя');
@@ -157,14 +153,7 @@ const CabinetComponent = () => {
                 setIsDataModalOpen(false);
                 setError(null);
                 
-                // Обновляем локальные данные
-                setUserData(prev => ({
-                    ...prev,
-                    ...updateData,
-                    phone: updateData.phoneNumber // сохраняем исходный формат телефона
-                }));
-                
-                console.log('Данные успешно обновлены');
+                console.log('Данные успешно обновлены в контексте');
             } else {
                 setError(response.error || 'Не удалось сохранить изменения');
             }
@@ -195,7 +184,31 @@ const CabinetComponent = () => {
     const handleModalClose = () => {
         setIsDataModalOpen(false);
         setError(null);
+        
+        if (user) {
+            setUserData({
+                first_name: user.first_name || user.firstName || '',
+                last_name: user.last_name || user.lastName || '',
+                patronymic: user.patronymic || '',
+                phone: user.phone || user.phone_number || user.phoneNumber || '',
+                email: user.email || '',
+                role: user.role || 'user'
+            });
+        }
     };
+
+    useEffect(() => {
+        if (user && !isDataModalOpen) {
+            setUserData({
+                first_name: user.first_name || user.firstName || '',
+                last_name: user.last_name || user.lastName || '',
+                patronymic: user.patronymic || '',
+                phone: user.phone || user.phone_number || user.phoneNumber || '',
+                email: user.email || '',
+                role: user.role || 'user'
+            });
+        }
+    }, [user, isDataModalOpen]);
 
     if (loading) {
         return (

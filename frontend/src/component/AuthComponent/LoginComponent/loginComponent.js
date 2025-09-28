@@ -3,7 +3,6 @@ import { useState, useCallback, useEffect } from 'react';
 import fotoGif from '../img/font.gif';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { api } from '../../../api/api';
 import { useAuth } from '../../../useContext/AuthContext';
 
 const LoginComponent = () => {
@@ -99,12 +98,15 @@ const LoginComponent = () => {
             }));
         }
 
+        // Очищаем ошибки при изменении полей
         setAuthError('');
-
-        if (touched[name]) {
-            validate();
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
         }
-    }, [touched, validate, loginType, handlePhoneChange]);
+    }, [touched, validate, loginType, handlePhoneChange, errors]);
 
     const handleBlur = useCallback((e) => {
         const { name } = e.target;
@@ -133,33 +135,90 @@ const LoginComponent = () => {
                 password: formData.password
             };
 
-            // Используем метод login из контекста вместо прямого вызова API
             const result = await login(credentials);
 
             if (result.success) {
-                // Успешный вход - перенаправляем на главную страницу
                 navigate('/');
             } else {
-                setAuthError(result.error || 'Ошибка авторизации');
+                // Обработка ошибок из контекста авторизации
+                const errorMessage = result.error || 'Неверные учетные данные';
+                setAuthError(errorMessage);
+                
+                // Дополнительно можно подсветить конкретные поля
+                if (errorMessage.toLowerCase().includes('пароль') || 
+                    errorMessage.toLowerCase().includes('password')) {
+                    setErrors(prev => ({
+                        ...prev,
+                        password: 'Неверный пароль'
+                    }));
+                } else if (errorMessage.toLowerCase().includes('почта') || 
+                          errorMessage.toLowerCase().includes('email') ||
+                          errorMessage.toLowerCase().includes('телефон') ||
+                          errorMessage.toLowerCase().includes('phone') ||
+                          errorMessage.toLowerCase().includes('логин') ||
+                          errorMessage.toLowerCase().includes('login') ||
+                          errorMessage.toLowerCase().includes('пользователь') ||
+                          errorMessage.toLowerCase().includes('user')) {
+                    setErrors(prev => ({
+                        ...prev,
+                        login: 'Пользователь с такими данными не найден'
+                    }));
+                }
             }
         } catch (error) {
             console.error('Ошибка авторизации:', error);
             
-            // Обработка ошибок из контекста
+            let errorMessage = 'Ошибка авторизации';
+
+            // Более детальная обработка ошибок
             if (error.response?.data) {
                 const errorData = error.response.data;
-                setAuthError(
-                    errorData.message ||
-                    errorData.error ||
-                    errorData.non_field_errors?.[0] ||
-                    'Неверные учетные данные. Пожалуйста, попробуйте снова.'
-                );
+                
+                // Стандартные ошибки Django REST Framework и других бэкендов
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (errorData.error) {
+                    errorMessage = errorData.error;
+                } else if (errorData.non_field_errors) {
+                    errorMessage = errorData.non_field_errors[0];
+                } else if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                } else {
+                    errorMessage = 'Неверные учетные данные';
+                }
             } else if (error.message === 'Invalid token') {
-                setAuthError('Сессия истекла. Пожалуйста, войдите снова.');
+                errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
             } else if (error.message === 'Unauthorized') {
-                setAuthError('Неверные учетные данные');
-            } else {
-                setAuthError('Ошибка соединения с сервером. Попробуйте позже.');
+                errorMessage = 'Неверные учетные данные';
+            } else if (error.message === 'Network Error' || !error.response) {
+                errorMessage = 'Ошибка соединения с сервером. Проверьте интернет-соединение.';
+            }
+
+            setAuthError(errorMessage);
+
+            // Автоматически определяем, какое поле неверное
+            if (errorMessage.toLowerCase().includes('пароль') || 
+                errorMessage.toLowerCase().includes('password')) {
+                setErrors(prev => ({
+                    ...prev,
+                    password: 'Неверный пароль'
+                }));
+            } else if (errorMessage.toLowerCase().includes('почта') || 
+                      errorMessage.toLowerCase().includes('email') ||
+                      errorMessage.toLowerCase().includes('телефон') ||
+                      errorMessage.toLowerCase().includes('phone') ||
+                      errorMessage.toLowerCase().includes('логин') ||
+                      errorMessage.toLowerCase().includes('login') ||
+                      errorMessage.toLowerCase().includes('пользователь') ||
+                      errorMessage.toLowerCase().includes('user') ||
+                      errorMessage.toLowerCase().includes('не найден') ||
+                      errorMessage.toLowerCase().includes('not found')) {
+                setErrors(prev => ({
+                    ...prev,
+                    login: 'Пользователь с такими данными не найден'
+                }));
             }
         } finally {
             setIsSubmitting(false);

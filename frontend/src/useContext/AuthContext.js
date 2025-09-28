@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 
     // Логин
     const login = async (credentials) => {
-        setIsLoading(true);
+        // setIsLoading(true);
         try {
             const response = await api.auth.login(credentials);
             console.log('Login response:', response);
@@ -138,14 +138,7 @@ export const AuthProvider = ({ children }) => {
             console.log('Register response:', response);
             
             if (response && response.success) {
-                const newAccessToken = response.data.accessToken;
-                const newRefreshToken = response.data.refreshToken;
-                const userDataResponse = response.data.user;
-                
-                if (newAccessToken && userDataResponse) {
-                    setAuthState(newAccessToken, newRefreshToken, userDataResponse, true);
-                    return { success: true, data: response.data };
-                }
+                return { success: true, data: response.data };
             }
             
             return { 
@@ -154,7 +147,6 @@ export const AuthProvider = ({ children }) => {
             };
         } catch (error) {
             console.error('Register error:', error);
-            setAuthState(null, null, null, false);
             return { 
                 success: false, 
                 error: error.message || 'Ошибка сети' 
@@ -207,6 +199,8 @@ export const AuthProvider = ({ children }) => {
     const updateProfile = async (userData) => {
         try {
             const response = await api.auth.updateProfile(userData);
+
+            console.log(response, 'repon')
             
             if (response && response.success) {
                 const updatedUser = response.data.user || response.data;

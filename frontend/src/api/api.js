@@ -15,11 +15,11 @@ httpClient.addResponseInterceptor(async (response) => {
 });
 
 httpClient.addRequestInterceptor(async (request) => {
-  const token = localStorage.getItem('token');
-  if (token) {
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
     request.options.headers = {
       ...request.options.headers,
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${accessToken}`
     };
   }
   return request;
@@ -27,7 +27,8 @@ httpClient.addRequestInterceptor(async (request) => {
 
 httpClient.addResponseInterceptor(async (response) => {
   if (response.data && response.data.message && response.data.message.includes('Не авторизован')) {
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     console.warn('Авторизация истекла, перенаправляем на логин');
   }
   return response;
@@ -134,7 +135,8 @@ export const initializeMockData = async () => {
     });
 
     if (loginResult.data.accessToken) {
-      localStorage.setItem('token', loginResult.data.accessToken);
+      localStorage.setItem('accessToken', loginResult.data.accessToken);
+      localStorage.setItem('refreshToken', loginResult.data.refreshToken);
       console.log('✅ Авторизован как администратор');
     }
   } catch (error) {

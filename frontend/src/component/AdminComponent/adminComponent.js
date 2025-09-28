@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../useContext/AuthContext';
 import { api } from '../../api/api';
 import styles from './admin.module.scss';
 
 const AdminComponent = () => {
-  const { token, logout: authLogout } = useAuth();
+  const { token, logout: authLogout, user, isAdmin } = useAuth();
   const [currentView, setCurrentView] = useState('all');
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -14,39 +13,36 @@ const AdminComponent = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [adminData, setAdminData] = useState(null);
+  const [accessDenied, setAccessDenied] = useState(false);
 
-  const fetchAdminData = useCallback(async () => {
-    try {
-      const response = await api.users.getMe();
-      
-      if (response.success) {
-        const userData = response.user || response;
-        
-        if (userData.role !== 'admin') {
-          setError('Доступ запрещен. Требуются права администратора');
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 2000);
-          return;
-        }
-        
-        setAdminData({
-          name: `${userData.last_name || userData.lastName || ''} ${userData.first_name || userData.firstName || ''}`,
-          email: userData.email || '',
-          role: userData.role || 'user',
-          lastLogin: new Date().toLocaleString('ru-RU')
-        });
-      }
-    } catch (err) {
-      console.error('Ошибка загрузки данных администратора:', err);
-      if (err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
-        setError(err.message);
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
-      }
+  useEffect(() => {
+    if (!token) {
+      setError('Требуется авторизация');
+      setAccessDenied(true);
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 3000);
+      return;
     }
-  }, []);
+
+    if (user && !isAdmin()) {
+      setError('Нет доступа к разделу администратора');
+      setAccessDenied(true);
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 3000);
+      return;
+    }
+
+    if (user && isAdmin()) {
+      setAdminData({
+        name: `${user.lastName || ''} ${user.firstName || ''}`.trim(),
+        email: user.email || '',
+        role: user.role || 'admin',
+        lastLogin: new Date().toLocaleString('ru-RU')
+      });
+    }
+  }, [token, user, isAdmin]);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -56,37 +52,40 @@ const AdminComponent = () => {
       const response = await api.admin.getUsers();
       console.log('Users response:', response);
 
-      if (response.success) {
-        const usersData = Array.isArray(response.users) ? response.users : 
+      if (response && response.success) {
+        const usersData = Array.isArray(response.data?.users) ? response.data.users : 
+                         Array.isArray(response.users) ? response.users : 
                          Array.isArray(response.data) ? response.data : 
-                         Array.isArray(response) ? response : [];
+                         [];
         
         const formattedUsers = usersData.map(user => ({
           id: user.id,
-          firstName: user.first_name || user.firstName || '',
-          lastName: user.last_name || user.lastName || '',
+          firstName: user.firstName || user.first_name || '',
+          lastName: user.lastName || user.last_name || '',
           patronymic: user.patronymic || '',
           email: user.email || '',
           role: user.role || 'user',
-          phoneNumber: user.phone_number || user.phoneNumber || user.phone || '',
-          status: user.status || 'active',
-          lastActivity: user.last_activity || user.lastActivity || new Date()
+          phoneNumber: user.phoneNumber || user.phone_number || user.phone || '',
+          createdAt: user.createdAt || user.created_at || new Date(),
+          updatedAt: user.updatedAt || user.updated_at || new Date()
         }));
 
         setUsers(formattedUsers);
       } else {
-        setError(response.message || 'Не удалось загрузить пользователей');
+        setError(response?.data?.message || response?.message || 'Не удалось загрузить пользователей');
       }
     } catch (err) {
       console.error('Ошибка загрузки пользователей:', err);
-      setError(err.message || 'Ошибка загрузки пользователей');
+      setError(err.response?.data?.message || err.message || 'Ошибка загрузки пользователей');
+      
       if (err.response?.status === 401 || err.message?.includes('авторизация')) {
         authLogout();
       }
-      if (err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+      if (err.response?.status === 403 || err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+        setAccessDenied(true);
         setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+          window.location.href = '/login';
+        }, 3000);
       }
     } finally {
       setLoading(false);
@@ -94,28 +93,15 @@ const AdminComponent = () => {
   }, [authLogout]);
 
   useEffect(() => {
-    if (!token) {
-      setError('Требуется авторизация');
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
-      return;
+    if (user && isAdmin()) {
+      fetchUsers();
     }
-
-    fetchAdminData();
-    fetchUsers();
-  }, [token, fetchAdminData, fetchUsers]);
+  }, [user, isAdmin, fetchUsers]);
 
   useEffect(() => {
     switch (currentView) {
       case 'all':
         setFilteredUsers(users);
-        break;
-      case 'active':
-        setFilteredUsers(users.filter(user => user.status === 'active'));
-        break;
-      case 'inactive':
-        setFilteredUsers(users.filter(user => user.status === 'inactive'));
         break;
       default:
         setFilteredUsers(users);
@@ -132,20 +118,53 @@ const AdminComponent = () => {
       try {
         const response = await api.admin.deleteUser(userId);
         
-        if (response.success) {
-          setUsers(users.filter(user => user.id !== userId));
+        if (response && response.success) {
+          setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
           setError('');
         } else {
-          setError(response.message || 'Ошибка удаления пользователя');
+          setError(response?.data?.message || response?.message || 'Ошибка удаления пользователя');
         }
       } catch (err) {
         console.error('Ошибка удаления:', err);
-        setError(err.message || 'Ошибка удаления пользователя');
-        if (err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+        setError(err.response?.data?.message || err.message || 'Ошибка удаления пользователя');
+        
+        if (err.response?.status === 403 || err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+          setAccessDenied(true);
           setTimeout(() => {
-            window.location.href = '/';
-          }, 2000);
+            window.location.href = '/login';
+          }, 3000);
         }
+      }
+    }
+  };
+
+  const handleUpdateUserRole = async (userId, newRole) => {
+    try {
+      const response = await api.admin.updateUserRole(userId, newRole);
+      
+      if (response && response.success) {
+        const updatedUser = response.data || response;
+        setUsers(prevUsers => 
+          prevUsers.map(user => 
+            user.id === userId ? {
+              ...user,
+              role: updatedUser.role || newRole
+            } : user
+          )
+        );
+        setError('');
+      } else {
+        setError(response?.data?.message || response?.message || 'Ошибка обновления роли');
+      }
+    } catch (err) {
+      console.error('Ошибка обновления роли:', err);
+      setError(err.response?.data?.message || err.message || 'Ошибка обновления роли');
+      
+      if (err.response?.status === 403 || err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+        setAccessDenied(true);
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
       }
     }
   };
@@ -159,45 +178,49 @@ const AdminComponent = () => {
           patronymic: userData.patronymic,
           email: userData.email,
           phoneNumber: userData.phoneNumber.replace(/\D/g, ''),
-          role: userData.role,
-          status: userData.status
+          role: userData.role
         };
 
         const response = await api.admin.updateUser(editingUser.id, updateData);
         
-        if (response.success) {
-          const updatedUser = response.user || response;
-          setUsers(users.map(user => 
-            user.id === editingUser.id ? {
-              ...user,
-              firstName: updatedUser.first_name || updatedUser.firstName || userData.firstName,
-              lastName: updatedUser.last_name || updatedUser.lastName || userData.lastName,
-              patronymic: updatedUser.patronymic || userData.patronymic,
-              email: updatedUser.email || userData.email,
-              phoneNumber: updatedUser.phone_number || updatedUser.phoneNumber || userData.phoneNumber,
-              role: updatedUser.role || userData.role,
-              status: updatedUser.status || userData.status
-            } : user
-          ));
+        if (response && response.success) {
+          const updatedUser = response.data || response;
+          setUsers(prevUsers => 
+            prevUsers.map(user => 
+              user.id === editingUser.id ? {
+                ...user,
+                firstName: updatedUser.firstName || updatedUser.first_name || userData.firstName,
+                lastName: updatedUser.lastName || updatedUser.last_name || userData.lastName,
+                patronymic: updatedUser.patronymic || userData.patronymic,
+                email: updatedUser.email || userData.email,
+                phoneNumber: updatedUser.phoneNumber || updatedUser.phone_number || userData.phoneNumber,
+                role: updatedUser.role || userData.role,
+                updatedAt: new Date().toISOString()
+              } : user
+            )
+          );
           setError('');
         } else {
-          setError(response.message || 'Ошибка сохранения пользователя');
+          setError(response?.data?.message || response?.message || 'Ошибка сохранения пользователя');
         }
       }
       setShowModal(false);
       setEditingUser(null);
     } catch (err) {
       console.error('Ошибка сохранения:', err);
-      setError(err.message || err.response?.data?.message || 'Ошибка сохранения пользователя');
-      if (err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+      setError(err.response?.data?.message || err.message || 'Ошибка сохранения пользователя');
+      
+      if (err.response?.status === 403 || err.message?.includes('администратора') || err.message?.includes('Доступ запрещен')) {
+        setAccessDenied(true);
         setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+          window.location.href = '/login';
+        }, 3000);
       }
     }
   };
 
   const formatDate = (date) => {
+    if (!date) return 'Не указано';
     return new Date(date).toLocaleDateString('ru-RU', {
       year: 'numeric',
       month: 'long',
@@ -221,36 +244,31 @@ const AdminComponent = () => {
 
   const getRoleDisplay = (role) => {
     const roleMap = {
-      'user': 'Пользователь',
-      'admin': 'Администратор',
-      'moderator': 'Модератор'
+      'user': 'Клиент',
+      'admin': 'Администратор компании',
+      'manager': 'Менеджер по аренде',
+      'support': 'Служба поддержки'
     };
     return roleMap[role] || role;
   };
 
-  const getStatusDisplay = (status) => {
-    const statusMap = {
-      'active': 'Активен',
-      'inactive': 'Неактивен'
-    };
-    return statusMap[status] || status;
-  };
-
-  if (error && (error.includes('администратора') || error.includes('Доступ запрещен'))) {
+  // Если доступ запрещен
+  if (accessDenied) {
     return (
       <div className={styles.adminContainer}>
-        <div className={styles.error}>
-          {error}
-          <p>Перенаправление на главную страницу...</p>
+        <div className={styles.accessDenied}>
+          <h2>Доступ запрещен</h2>
+          <p>{error || 'Нет доступа к разделу администратора'}</p>
+          <p>Перенаправление на страницу входа через 3 секунды...</p>
         </div>
       </div>
     );
   }
 
-  if (!adminData) {
+  if (loading || !adminData) {
     return (
       <div className={styles.adminContainer}>
-        <div className={styles.loading}>Загрузка...</div>
+        <div className={styles.loading}>Загрузка панели администратора...</div>
       </div>
     );
   }
@@ -264,7 +282,27 @@ const AdminComponent = () => {
           <p><strong>Администратор:</strong> {adminData.name}</p>
           <p><strong>Email:</strong> {adminData.email}</p>
           <p><strong>Роль:</strong> {getRoleDisplay(adminData.role)}</p>
-          <p><strong>Последний вход:</strong> {adminData.lastLogin}</p>
+          <p><strong>Текущая сессия:</strong> {adminData.lastLogin}</p>
+        </div>
+        <div className={styles.adminStats}>
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>{users.length}</span>
+            <span className={styles.statLabel}>Всего пользователей</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>{users.filter(u => u.role === 'user').length}</span>
+            <span className={styles.statLabel}>Клиентов</span>
+          </div>
+
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>{users.filter(u => u.role === 'manager').length}</span>
+            <span className={styles.statLabel}>Менеджер по аренде</span>
+          </div>
+
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>{users.filter(u => u.role === 'support').length}</span>
+            <span className={styles.statLabel}>Служба поддержки</span>
+          </div>
         </div>
 
         <div className={styles.adminNav}>
@@ -274,86 +312,91 @@ const AdminComponent = () => {
           >
             Все пользователи ({users.length})
           </button>
-          <button 
-            className={`${styles.navButton} ${currentView === 'active' ? styles.active : ''}`}
-            onClick={() => setCurrentView('active')}
-          >
-            Активные пользователи ({users.filter(u => u.status === 'active').length})
-          </button>
-          <button 
-            className={`${styles.navButton} ${currentView === 'inactive' ? styles.active : ''}`}
-            onClick={() => setCurrentView('inactive')}
-          >
-            Неактивные пользователи ({users.filter(u => u.status === 'inactive').length})
-          </button>
         </div>
       </div>
 
-      {error && !error.includes('администратора') && (
+      {error && (
         <div className={styles.error}>
           {error}
-          <button onClick={() => setError('')} style={{ marginLeft: '10px' }}>×</button>
+          <button 
+            onClick={() => setError('')} 
+            className={styles.closeError}
+          >
+            ×
+          </button>
         </div>
       )}
 
       {loading && (
         <div className={styles.loading}>
-          Загрузка данных...
+          Загрузка данных пользователей...
         </div>
       )}
 
       {!loading && filteredUsers.length > 0 && (
-        <div className={styles.usersGrid}>
-          {filteredUsers.map(user => (
-            <div key={user.id} className={styles.userCard}>
-              <div className={styles.userHeader}>
-                <h3 className={styles.userName}>
-                  {user.lastName} {user.firstName} {user.patronymic}
-                </h3>
-                <div className={styles.userRole}>
-                  {getRoleDisplay(user.role)}
-                </div>
-              </div>
-
-              <div className={styles.userInfo}>
-                <p>
-                  <span>Email:</span> {user.email}
-                </p>
-                <p>
-                  <span>Телефон:</span> {formatPhone(user.phoneNumber)}
-                </p>
-                <p>
-                  <span>Последняя активность:</span> {formatDate(user.lastActivity)}
-                </p>
-                <p>
-                  <span>Статус:</span> 
-                  <span className={`${styles.userStatus} ${styles[user.status]}`}>
-                    {getStatusDisplay(user.status)}
-                  </span>
-                </p>
-              </div>
-
-              <div className={styles.userActions}>
-                <button 
-                  className={`${styles.actionButton} ${styles.edit}`}
-                  onClick={() => handleEditUser(user)}
-                >
-                  Редактировать
-                </button>
-                <button 
-                  className={`${styles.actionButton} ${styles.delete}`}
-                  onClick={() => handleDeleteUser(user.id)}
-                >
-                  Удалить
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className={styles.usersTableContainer}>
+          <table className={styles.usersTable}>
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Email</th>
+                <th>Телефон</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map(user => (
+                <tr key={user.id} className={styles.userRow}>
+                  <td>
+                    <div className={styles.userName}>
+                      {user.lastName} {user.firstName} {user.patronymic}
+                    </div>
+                  </td>
+                  <td>{user.email}</td>
+                  <td>{formatPhone(user.phoneNumber)}</td>
+                  <td>
+                    <select
+                      value={user.role}
+                      onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
+                      className={styles.roleSelect}
+                    >
+                      <option value="user">Клиент</option>
+                      <option value="admin">Администратор компании</option>
+                      <option value="manager">Менеджер по аренде</option>
+                      <option value="support">Служба поддержки</option>
+                    </select>
+                  </td>
+                  <td>{formatDate(user.createdAt)}</td>
+                  <td>
+                    <div className={styles.actionButtons}>
+                      <button 
+                        className={`${styles.actionButton} ${styles.editButton}`}
+                        onClick={() => handleEditUser(user)}
+                        title="Редактировать"
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        className={`${styles.actionButton} ${styles.deleteButton}`}
+                        onClick={() => handleDeleteUser(user.id)}
+                        disabled={user.id === adminData.id}
+                        title={user.id === adminData.id ? "Нельзя удалить себя" : "Удалить"}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
       {!loading && filteredUsers.length === 0 && (
-        <div className={styles.error}>
+        <div className={styles.noUsers}>
           {currentView === 'all' ? 'Нет пользователей' : 
            currentView === 'active' ? 'Нет активных пользователей' : 
            'Нет неактивных пользователей'}
@@ -370,22 +413,20 @@ const AdminComponent = () => {
             setError('');
           }}
           getRoleDisplay={getRoleDisplay}
-          getStatusDisplay={getStatusDisplay}
         />
       )}
     </div>
   );
 };
 
-const EditUserModal = ({ user, onSave, onClose }) => {
+const EditUserModal = ({ user, onSave, onClose, getRoleDisplay, getStatusDisplay }) => {
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     patronymic: user?.patronymic || '',
     email: user?.email || '',
     phoneNumber: user?.phoneNumber || '',
-    role: user?.role || 'user',
-    status: user?.status || 'active'
+    role: user?.role || 'user'
   });
 
   const handleSubmit = (e) => {
@@ -429,88 +470,90 @@ const EditUserModal = ({ user, onSave, onClose }) => {
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        <h2 className={styles.modalTitle}>
-          Редактирование пользователя
-        </h2>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>
+            Редактирование пользователя
+          </h2>
+          <button className={styles.closeButton} onClick={onClose}>×</button>
+        </div>
         
-        <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label>Фамилия:</label>
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Фамилия *</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                className={styles.formInput}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Имя *</label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                className={styles.formInput}
+              />
+            </div>
           </div>
 
           <div className={styles.formGroup}>
-            <label>Имя:</label>
-            <input
-              type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Отчество:</label>
+            <label>Отчество</label>
             <input
               type="text"
               name="patronymic"
               value={formData.patronymic}
               onChange={handleChange}
+              className={styles.formInput}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label>Email:</label>
+            <label>Email *</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
+              className={styles.formInput}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label>Телефон:</label>
+            <label>Телефон</label>
             <input
               type="tel"
               name="phoneNumber"
               value={formatPhoneDisplay(formData.phoneNumber)}
               onChange={handlePhoneChange}
               placeholder="+7 (912) 345-67-89"
+              className={styles.formInput}
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label>Роль:</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-            >
-              <option value="user">Пользователь</option>
-              <option value="admin">Администратор</option>
-              <option value="moderator">Модератор</option>
-            </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Статус:</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="active">Активен</option>
-              <option value="inactive">Неактивен</option>
-            </select>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Роль</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className={styles.formSelect}
+              >
+                <option value="user">Клиент</option>
+                <option value="admin">Администратор компании</option>
+                <option value="manager">Менеджер по аренде</option>
+                <option value="support">Служба поддержки</option>
+              </select>
+            </div>
           </div>
 
           <div className={styles.formActions}>
@@ -525,7 +568,7 @@ const EditUserModal = ({ user, onSave, onClose }) => {
               type="submit"
               className={styles.saveButton}
             >
-              Сохранить
+              Сохранить изменения
             </button>
           </div>
         </form>

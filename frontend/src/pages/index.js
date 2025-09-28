@@ -4,7 +4,7 @@ import { useAuth } from '../useContext/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 const HomePage = () => {
-  const { token, isLoading, isAuthenticated } = useAuth();
+  const {  isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
     return <div>Загрузка...</div>;

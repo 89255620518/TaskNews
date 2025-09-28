@@ -23,23 +23,45 @@ export class HttpClient {
 
   async _createTestAdmin() {
     const users = JSON.parse(localStorage.getItem('users'));
-    const adminExists = users.find(user => user.email === 'admin@example.com');
+    
+    const adminEmail = 'admin@mail.ru';
+    const adminPassword = 'Restart987';
+    const adminFirstName = 'Иброхим';
+    const adminLastName = 'Эргешев';
+    
+    // Удаляем всех других админов
+    const filteredUsers = users.filter(user => user.role !== 'admin' || user.email === adminEmail);
+    
+    const adminExists = filteredUsers.find(user => user.email === adminEmail);
     
     if (!adminExists) {
       const adminUser = {
         id: 1,
-        firstName: 'Администратор',
-        lastName: 'Системы',
-        email: 'admin@example.com',
-        password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+        firstName: adminFirstName,
+        lastName: adminLastName,
+        email: adminEmail,
+        password: btoa(adminPassword) + '_hashed',
         role: 'admin',
         phoneNumber: '79991234567',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       
-      users.push(adminUser);
-      localStorage.setItem('users', JSON.stringify(users));
+      filteredUsers.push(adminUser);
+      localStorage.setItem('users', JSON.stringify(filteredUsers));
+      console.log('✅ Администратор создан с вашими данными');
+    } else {
+      
+      const adminIndex = filteredUsers.findIndex(user => user.email === adminEmail);
+      filteredUsers[adminIndex] = {
+        ...filteredUsers[adminIndex],
+        firstName: adminFirstName,
+        lastName: adminLastName,
+        password: btoa(adminPassword) + '_hashed',
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem('users', JSON.stringify(filteredUsers));
+      console.log('✅ Данные администратора обновлены');
     }
   }
 
@@ -133,7 +155,7 @@ export class HttpClient {
         success: true,
         message: 'Регистрация успешна',
         data: {
-            user: { ...newUser, password: undefined },
+            user: { ...newUser, password: undefined }
         }
     };
   }
@@ -201,7 +223,7 @@ export class HttpClient {
   }
 
   _handleGetCurrentUser = async (data) => {
-    const token = data.user?.token || localStorage.getItem('token');
+    const token = data.headers?.Authorization?.replace('Bearer ', '') || localStorage.getItem('accessToken');
     if (!token) {
       throw { status: 401, message: 'Пользователь не авторизован' };
     }
@@ -461,7 +483,9 @@ export class HttpClient {
 
   _verifyToken = (token) => {
     try {
-        if (!token) return null;
+        if (!token || token === 'null' || token === 'undefined') {
+            return null;
+        }
         
         const payload = JSON.parse(atob(token));
         
@@ -494,8 +518,13 @@ export class HttpClient {
         localStorage.setItem('tokens', JSON.stringify(filteredTokens));
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
+        
+        console.log('✅ Токены успешно сохранены для пользователя:', userId);
     } catch (error) {
         console.error('Error saving token:', error);
+        // В случае ошибки просто сохраняем токены напрямую
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
     }
   }
 
@@ -505,7 +534,7 @@ export class HttpClient {
   }
 
   _getTokenData(data) {
-    const token = data.user?.token || localStorage.getItem('token');
+    const token = data.headers?.Authorization?.replace('Bearer ', '') || localStorage.getItem('accessToken');
     return this._verifyToken(token);
   }
 
@@ -551,18 +580,14 @@ export class HttpClient {
 
       const urlParams = this._extractUrlParams(url);
       
-      const token = options.headers?.Authorization?.replace('Bearer ', '');
-      const user = token ? this._verifyToken(token) : null;
-
       const controllerData = {
         ...bodyData,
         ...urlParams,
-        user: user
+        headers: options.headers
       };
 
       const result = await handler(controllerData);
 
-      console.log(result, 'resa')
       let responseData = result;
       for (const responseInterceptor of this.interceptors.response) {
         responseData = await responseInterceptor(responseData);
@@ -573,25 +598,6 @@ export class HttpClient {
       console.error('API Error:', error);
       throw this._createErrorResponse(error);
     }
-  }
-
-  async _handleRefreshToken() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    const response = await this.post('/api/refresh', { refreshToken });
-    
-    if (response.data.success) {
-      localStorage.setItem('token', response.data.accessToken);
-      if (response.data.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-      }
-      return response.data;
-    }
-    
-    throw new Error('Token refresh failed');
   }
 
   _extractUrlParams(url) {
@@ -698,7 +704,8 @@ export class HttpClient {
 
   // Метод для сброса данных (удобно для тестов)
   reset() {
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('tokens');
     localStorage.removeItem('users');
     this._initStorage();
