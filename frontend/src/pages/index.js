@@ -4,13 +4,14 @@ import { useAuth } from '../useContext/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 const HomePage = () => {
-  const { token, isLoading } = useAuth();
+  const { token, isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
     return <div>Загрузка...</div>;
   }
 
-  if (!token) {
+  // Используем isAuthenticated вместо token для проверки аутентификации
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

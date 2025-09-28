@@ -6,7 +6,14 @@ import styles from './cabinet.module.scss';
 
 const CabinetComponent = () => {
     const navigate = useNavigate();
-    const { token, logout: authLogout } = useAuth();
+    const { 
+        token, 
+        user, 
+        userRole, 
+        logout: authLogout, 
+        updateProfile,
+        isAuthenticated 
+    } = useAuth();
 
     const [userData, setUserData] = useState({
         first_name: '',
@@ -21,6 +28,7 @@ const CabinetComponent = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isDataModalOpen, setIsDataModalOpen] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
 
     const handlePhoneChange = useCallback((value) => {
         let cleaned = value.replace(/[^\d+]/g, '');
@@ -46,21 +54,14 @@ const CabinetComponent = () => {
     // Функция для преобразования роли
     const getRoleDisplay = useCallback((role) => {
         const roleMap = {
-            'user': 'Пользователь',
-            'admin': 'Администратор',
-            'moderator': 'Модератор'
+            'user': 'Клиент',
+            'admin': 'Администратор компании',
+            'manager': 'Менеджер по аренде',
+            'support': 'Служба поддержки'
         };
         return roleMap[role] || role;
     }, []);
 
-    // Функция для преобразования статуса
-    const getStatusDisplay = useCallback((status) => {
-        const statusMap = {
-            'active': 'Активен',
-            'inactive': 'Неактивен'
-        };
-        return statusMap[status] || status;
-    }, []);
 
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
@@ -80,20 +81,34 @@ const CabinetComponent = () => {
     }, [handlePhoneChange]);
 
     useEffect(() => {
-        if (!token) {
+        if (!isAuthenticated || !token) {
             navigate('/login');
             return;
         }
 
+        if (user) {
+            setUserData({
+                first_name: user.first_name || user.firstName || '',
+                last_name: user.last_name || user.lastName || '',
+                patronymic: user.patronymic || '',
+                phone: user.phone || user.phone_number || user.phoneNumber || '',
+                email: user.email || '',
+                role: user.role || 'user',
+            });
+            setLoading(false);
+            return;
+        }
+
+        // Если данных нет в контексте, загружаем через API
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const response = await api.users.getMe();
+                const response = await api.auth.getCurrentUser();
 
-                console.log(response, 'resp');
+                console.log('Данные пользователя:', response);
 
-                if (response.success) {
-                    const userDataFromResponse = response.user || response;
+                if (response.data && response.data.success) {
+                    const userDataFromResponse = response.data.user || response.data;
                     
                     setUserData({
                         first_name: userDataFromResponse.first_name || userDataFromResponse.firstName || '',
@@ -102,14 +117,13 @@ const CabinetComponent = () => {
                         phone: userDataFromResponse.phone || userDataFromResponse.phone_number || userDataFromResponse.phoneNumber || '',
                         email: userDataFromResponse.email || '',
                         role: userDataFromResponse.role || 'user',
-                        status: userDataFromResponse.status || 'active'
                     });
                 } else {
-                    setError(response.message || 'Не удалось загрузить данные пользователя');
+                    setError(response.data?.message || 'Не удалось загрузить данные пользователя');
                 }
             } catch (err) {
                 console.error('Ошибка загрузки данных:', err);
-                setError('Не удалось загрузить данные пользователя');
+                setError(err.response?.data?.message || 'Не удалось загрузить данные пользователя');
                 if (err.response?.status === 401) {
                     authLogout();
                     navigate('/login');
@@ -120,10 +134,13 @@ const CabinetComponent = () => {
         };
 
         fetchUserData();
-    }, [token, navigate, authLogout]);
+    }, [token, navigate, authLogout, isAuthenticated, user]);
 
     const handleSaveData = async () => {
         try {
+            setSaveLoading(true);
+            setError(null);
+
             const updateData = {
                 firstName: userData.first_name,
                 lastName: userData.last_name,
@@ -132,27 +149,24 @@ const CabinetComponent = () => {
                 email: userData.email
             };
 
-            const response = await api.users.updateMe(updateData);
-            console.log(response, 'upt')
+            console.log('Отправляемые данные:', updateData);
+
+            const response = await updateProfile(updateData);
 
             if (response.success) {
                 setIsDataModalOpen(false);
                 setError(null);
-                // Обновляем данные после успешного сохранения
-                const updatedResponse = await api.users.getMe();
-                if (updatedResponse.success) {
-                    const updatedData = updatedResponse.user || updatedResponse;
-                    setUserData(prev => ({
-                        ...prev,
-                        first_name: updatedData.first_name || updatedData.firstName || prev.first_name,
-                        last_name: updatedData.last_name || updatedData.lastName || prev.last_name,
-                        patronymic: updatedData.patronymic || prev.patronymic,
-                        phone: updatedData.phone || updatedData.phone_number || updatedData.phoneNumber || prev.phone,
-                        email: updatedData.email || prev.email
-                    }));
-                }
+                
+                // Обновляем локальные данные
+                setUserData(prev => ({
+                    ...prev,
+                    ...updateData,
+                    phone: updateData.phoneNumber // сохраняем исходный формат телефона
+                }));
+                
+                console.log('Данные успешно обновлены');
             } else {
-                setError(response.message || 'Не удалось сохранить изменения');
+                setError(response.error || 'Не удалось сохранить изменения');
             }
         } catch (err) {
             console.error('Ошибка сохранения:', err);
@@ -162,12 +176,14 @@ const CabinetComponent = () => {
                 err.response?.data?.message ||
                 'Не удалось сохранить изменения'
             );
+        } finally {
+            setSaveLoading(false);
         }
     };
 
     const handleLogout = async () => {
         try {
-            await api.users.logout();
+            await api.auth.logout();
         } catch (err) {
             console.error('Ошибка при выходе:', err);
         } finally {
@@ -209,7 +225,6 @@ const CabinetComponent = () => {
                 <p><strong>Телефон:</strong> {formatPhoneDisplay(userData.phone)}</p>
                 <p><strong>Почта:</strong> {userData.email}</p>
                 <p><strong>Роль:</strong> {getRoleDisplay(userData.role)}</p>
-                <p><strong>Статус:</strong> {getStatusDisplay(userData.status)}</p>
             </div>
 
             <div className={styles.menu}>
@@ -285,6 +300,7 @@ const CabinetComponent = () => {
                                 onChange={handleChange}
                                 required
                                 className={styles.input}
+                                placeholder="+7 (XXX) XXX-XX-XX"
                             />
                         </div>
 
@@ -305,16 +321,23 @@ const CabinetComponent = () => {
                                 onClick={handleModalClose}
                                 className={styles.cancelButton}
                                 type="button"
+                                disabled={saveLoading}
                             >
                                 Отмена
                             </button>
                             <button
                                 onClick={handleSaveData}
                                 className={styles.saveButton}
-                                disabled={!userData.first_name || !userData.last_name || !userData.phone || !userData.email}
+                                disabled={
+                                    !userData.first_name || 
+                                    !userData.last_name || 
+                                    !userData.phone || 
+                                    !userData.email ||
+                                    saveLoading
+                                }
                                 type="button"
                             >
-                                Сохранить
+                                {saveLoading ? 'Сохранение...' : 'Сохранить'}
                             </button>
                         </div>
                     </div>

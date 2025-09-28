@@ -9,64 +9,59 @@ import RegisterPage from './pages/register';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './useContext/AuthContext';
 import AdminPage from './pages/admin';
+import { ApiRoutes } from './api/server/routes/authRoutes';
 
 const ProtectedRoute = ({ children }) => {
-  const { token, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   
   if (isLoading) {
     return <div>Загрузка...</div>;
   }
   
-  return token ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
-  const { token, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   
   if (isLoading) {
     return <div>Загрузка...</div>;
   }
   
-  return !token ? children : <Navigate to="/" replace />;
+  return !isAuthenticated ? children : <Navigate to="/" replace />;
 };
 
-const routes = [
-  { 
-    path: '/cabinet', 
-    element: (
-      <ProtectedRoute>
-        <CabinetPage />
-      </ProtectedRoute>
-    ) 
-  },
-  { 
-    path: '/admin', 
-    element: (
-      <ProtectedRoute>
-        <AdminPage />
-      </ProtectedRoute>
-    ) 
-  },
-  { 
-    path: '/login', 
-    element: (
-      <PublicRoute>
-        <LoginPage />
-      </PublicRoute>
-    ) 
-  },
-  { 
-    path: '/register', 
-    element: (
-      <PublicRoute>
-        <RegisterPage />
-      </PublicRoute>
-    ) 
-  },
-];
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, isLoading, isAdmin } = useAuth();
+  
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return isAdmin() ? children : <Navigate to="/cabinet" replace />;
+};
+
+const AppLoader = () => {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      height: '100vh',
+      fontSize: '18px'
+    }}>
+      Загрузка приложения...
+    </div>
+  );
+};
 
 function AppContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isLoading } = useAuth();
 
   const modalOpen = useCallback(() => {
     document.body.classList.add('no-scroll');
@@ -78,12 +73,18 @@ function AppContent() {
     setIsModalOpen(false);
   }, []);
 
+  if (isLoading) {
+    return <AppLoader />;
+  }
+
   return (
     <>
       <Helmet>
         <title>Тестовое задание</title>
       </Helmet>
       <Router>
+        <ApiRoutes />
+        
         <Header
           modalOpen={modalOpen}
           modalClosed={modalClosed}
@@ -92,9 +93,43 @@ function AppContent() {
 
         <Routes>
           <Route path="/" element={<HomePage />} />
-          {routes.map((route, index) => (
-            <Route key={index} path={route.path} element={route.element} />
-          ))}
+          
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            } 
+          />
+          
+          <Route 
+            path="/register" 
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            } 
+          />
+          
+          <Route 
+            path="/cabinet" 
+            element={
+              <ProtectedRoute>
+                <CabinetPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/admin" 
+            element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            } 
+          />
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

@@ -8,7 +8,7 @@ import { useAuth } from '../../../useContext/AuthContext';
 
 const LoginComponent = () => {
     const navigate = useNavigate();
-    const { login: authLogin } = useAuth();
+    const { login, isLoading: authLoading } = useAuth();
 
     const [formData, setFormData] = useState({
         login: '',
@@ -133,22 +133,19 @@ const LoginComponent = () => {
                 password: formData.password
             };
 
-            const response = await api.users.login(credentials);
+            // Используем метод login из контекста вместо прямого вызова API
+            const result = await login(credentials);
 
-            if (response.success && response.accessToken) {
-                authLogin(response.accessToken);
-
-                console.log(authLogin, 'auth')
-                
-                if (response.success) {
-                    navigate('/');
-                }
+            if (result.success) {
+                // Успешный вход - перенаправляем на главную страницу
+                navigate('/');
             } else {
-                setAuthError(response.message || 'Ошибка авторизации');
+                setAuthError(result.error || 'Ошибка авторизации');
             }
         } catch (error) {
             console.error('Ошибка авторизации:', error);
             
+            // Обработка ошибок из контекста
             if (error.response?.data) {
                 const errorData = error.response.data;
                 setAuthError(
@@ -167,7 +164,7 @@ const LoginComponent = () => {
         } finally {
             setIsSubmitting(false);
         }
-    }, [formData, loginType, validate, navigate, authLogin]);
+    }, [formData, loginType, validate, navigate, login]);
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -187,6 +184,9 @@ const LoginComponent = () => {
             ? formatPhoneDisplay(formData.login)
             : formData.login;
     };
+
+    // Объединяем состояния загрузки из формы и контекста
+    const isLoading = isSubmitting || authLoading;
 
     return (
         <div className={styles.containerLogin}>
@@ -261,10 +261,10 @@ const LoginComponent = () => {
                         className={styles.submitButton}
                         disabled={
                             (Object.values(errors).some(Boolean) ||
-                                isSubmitting
-                            )}
+                                isLoading)
+                        }
                     >
-                        {isSubmitting ? 'Вход...' : 'Войти'}
+                        {isLoading ? 'Вход...' : 'Войти'}
                     </button>
                 </form>
             </div>

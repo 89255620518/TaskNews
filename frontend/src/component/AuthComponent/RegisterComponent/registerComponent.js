@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import RegisterModal from '../RegisterModal/registerModal';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../../api/api';
+import { useAuth } from '../../../useContext/AuthContext';
 
 const RegisterComponent = () => {
     const [errors, setErrors] = useState({});
@@ -22,7 +22,9 @@ const RegisterComponent = () => {
         patronymic: '',
         phoneNumber: '+7'
     });
+    
     const navigate = useNavigate();
+    const { register, isLoading: authLoading } = useAuth();
 
     const handlePhoneChange = useCallback((value) => {
         let cleaned = value.replace(/[^\d+]/g, '');
@@ -133,81 +135,43 @@ const RegisterComponent = () => {
                     : `+7${formData.phoneNumber}`
             };
 
-            console.log('Отправка данных:', userData);
+            const result = await register(userData);
 
-            const response = await api.users.register(userData);
-
-            setIsSuccess(true);
-            console.log('Успешная регистрация:', response);
-
-            if (response.accessToken) {
-                localStorage.setItem('token', response.accessToken);
+            if (result.success) {
+                setIsSuccess(true);
+                setTimeout(() => navigate('/login'), 3000);
+            } else {
+                console.error('Ошибка регистрации:', result);
+                handleRegistrationError(result);
             }
-            if (response.refreshToken) {
-                localStorage.setItem('refreshToken', response.refreshToken);
-            }
-
-            setTimeout(() => navigate('/login'), 3000);
 
         } catch (error) {
-            console.error('Ошибка регистрации:', error);
-
-            const apiErrors = error.response?.data || {};
-            console.log('Детали ошибки от сервера:', apiErrors);
-
-            const formErrors = {};
-
-            if (apiErrors.email) {
-                formErrors.email = Array.isArray(apiErrors.email)
-                    ? apiErrors.email.join(' ')
-                    : apiErrors.email;
-            } else if (apiErrors.email && apiErrors.email.includes('уже существует')) {
-                formErrors.email = 'Пользователь с таким email уже зарегистрирован';
-            }
-
-            if (apiErrors.phoneNumber) {
-                formErrors.phoneNumber = Array.isArray(apiErrors.phoneNumber)
-                    ? apiErrors.phoneNumber.join(' ')
-                    : apiErrors.phoneNumber;
-            } else if (apiErrors.phoneNumber && apiErrors.phoneNumber.includes('уже существует')) {
-                formErrors.phoneNumber = 'Этот номер телефона уже используется';
-            }
-
-            if (apiErrors.firstName) {
-                formErrors.firstName = Array.isArray(apiErrors.firstName)
-                    ? apiErrors.firstName.join(' ')
-                    : apiErrors.firstName;
-            }
-
-            if (apiErrors.lastName) {
-                formErrors.lastName = Array.isArray(apiErrors.lastName)
-                    ? apiErrors.lastName.join(' ')
-                    : apiErrors.lastName;
-            }
-
-            if (apiErrors.password) {
-                formErrors.password = Array.isArray(apiErrors.password)
-                    ? apiErrors.password.join(' ')
-                    : apiErrors.password;
-            }
-
-            if (apiErrors.message) {
-                formErrors.general = apiErrors.message;
-            } else if (apiErrors.non_field_errors) {
-                formErrors.general = Array.isArray(apiErrors.non_field_errors)
-                    ? apiErrors.non_field_errors.join(' ')
-                    : apiErrors.non_field_errors;
-            }
-
-            if (Object.keys(formErrors).length === 0) {
-                formErrors.general = 'Произошла ошибка при регистрации. Пожалуйста, проверьте введенные данные.';
-            }
-
-            setErrors(formErrors);
+            console.error('Непредвиденная ошибка регистрации:', error);
+            setErrors({
+                general: 'Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.'
+            });
         } finally {
             setIsSubmitting(false);
         }
-    }, [formData, validate, navigate]);
+    }, [formData, validate, register, navigate]);
+
+    // Вынесем обработку ошибок в отдельную функцию для чистоты кода
+    const handleRegistrationError = (result) => {
+        const formErrors = {};
+        const errorMessage = result.error || result.message || 'Ошибка регистрации';
+
+        if (errorMessage.includes('email') || errorMessage.includes('почт')) {
+            formErrors.email = 'Пользователь с таким email уже зарегистрирован';
+        } else if (errorMessage.includes('phone') || errorMessage.includes('телефон')) {
+            formErrors.phoneNumber = 'Этот номер телефона уже используется';
+        } else if (errorMessage.includes('password') || errorMessage.includes('пароль')) {
+            formErrors.password = 'Некорректный пароль';
+        } else {
+            formErrors.general = errorMessage;
+        }
+
+        setErrors(formErrors);
+    };
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -216,6 +180,8 @@ const RegisterComponent = () => {
     const toggleConfirmPasswordVisibility = () => {
         setShowConfirmPassword(!showConfirmPassword);
     };
+
+    const isLoading = isSubmitting || authLoading;
 
     return (
         <div className={styles.containerRegister}>
@@ -371,9 +337,9 @@ const RegisterComponent = () => {
                     <button
                         type="submit"
                         className={styles.submitButton}
-                        disabled={isSubmitting}
+                        disabled={isLoading}
                     >
-                        {isSubmitting ? (
+                        {isLoading ? (
                             <>
                                 <span className={styles.spinner} /> Регистрация...
                             </>
