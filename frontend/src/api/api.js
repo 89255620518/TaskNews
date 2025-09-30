@@ -1,4 +1,7 @@
 import HttpClient from './httpClient/httpClient';
+import { UsersAPI } from './authApi/userApi';
+import { AdminAPI } from './authApi/adminApi';
+import { AuthAPI } from './authApi/authApi';
 
 const BASE_URL = 'http://127.0.0.1:3000';
 
@@ -33,90 +36,6 @@ httpClient.addResponseInterceptor(async (response) => {
   }
   return response;
 });
-
-class UsersAPI {
-  constructor(httpClient) {
-    this.httpClient = httpClient;
-  }
-
-  async getAll(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    const url = `/api/users${queryString ? `?${queryString}` : ''}`;
-    return this.httpClient.get(url);
-  }
-
-  async getById(id) {
-    return this.httpClient.get(`/api/users/${id}`);
-  }
-
-  async create(userData) {
-    return this.httpClient.post('/api/users', userData);
-  }
-
-  async update(id, userData) {
-    return this.httpClient.put(`/api/users/${id}`, userData);
-  }
-
-  async delete(id) {
-    return this.httpClient.delete(`/api/users/${id}`);
-  }
-
-  async updateRole(id, role) {
-    return this.httpClient.patch(`/api/users/${id}/role`, { role });
-  }
-}
-
-class AuthAPI {
-  constructor(httpClient) {
-    this.httpClient = httpClient;
-  }
-
-  async register(userData) {
-    return this.httpClient.post('/api/register', userData);
-  }
-
-  async login(credentials) {
-    return this.httpClient.post('/api/login', credentials);
-  }
-
-  async refresh() {
-    return this.httpClient.post('/api/refresh');
-  }
-
-  async logout() {
-    return this.httpClient.post('/api/logout');
-  }
-
-  async getCurrentUser() {
-    return this.httpClient.get('/api/me');
-  }
-
-  async updateProfile(userData) {
-    return this.httpClient.put('/api/profile', userData);
-  }
-}
-
-class AdminAPI {
-  constructor(httpClient) {
-    this.httpClient = httpClient;
-  }
-
-  async getUsers(params = {}) {
-    return this.httpClient.get('/api/users', params);
-  }
-
-  async createUser(userData) {
-    return this.httpClient.post('/api/users', userData);
-  }
-
-  async updateUserRole(id, role) {
-    return this.httpClient.patch(`/api/users/${id}/role`, { role });
-  }
-
-  async deleteUser(id) {
-    return this.httpClient.delete(`/api/users/${id}`);
-  }
-}
 
 export const api = {
   auth: new AuthAPI(httpClient),
