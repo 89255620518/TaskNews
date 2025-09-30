@@ -1,4 +1,4 @@
-import HttpClient from './httpClient';
+import HttpClient from './httpClient/httpClient';
 
 const BASE_URL = 'http://127.0.0.1:3000';
 
