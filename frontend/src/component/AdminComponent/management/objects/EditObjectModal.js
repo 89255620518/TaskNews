@@ -6,18 +6,15 @@ const EditPropertyModal = ({ property, onSave, onClose }) => {
     title: property?.title || '',
     description: property?.description || '',
     type: property?.type || 'apartment',
-    status: property?.status || 'available',
-    transactionType: property?.transactionType || 'both',
+    status: property?.status || 'active',
+    category: property?.category || 'rent',
     price: property?.price || 0,
     rentPrice: property?.rentPrice || 0,
     area: property?.area || 0,
     rooms: property?.rooms || 0,
     address: property?.address || '',
-    city: property?.city || '',
-    district: property?.district || '',
     amenities: property?.amenities || [],
-    images: property?.images || [],
-    isActive: property?.isActive !== undefined ? property.isActive : true
+    images: property?.images || []
   });
 
   const [amenitiesInput, setAmenitiesInput] = useState('');
@@ -159,10 +156,11 @@ const EditPropertyModal = ({ property, onSave, onClose }) => {
                 onChange={handleChange}
                 className={styles.formSelect}
               >
-                <option value="available">Доступен</option>
+                <option value="active">Доступен</option>
                 <option value="rented">Арендован</option>
                 <option value="sold">Продан</option>
                 <option value="maintenance">На обслуживании</option>
+                <option value="inactive">Неактивен</option>
               </select>
             </div>
           </div>
@@ -170,64 +168,38 @@ const EditPropertyModal = ({ property, onSave, onClose }) => {
           <div className={styles.formGroup}>
             <label>Тип сделки *</label>
             <select
-              name="transactionType"
-              value={formData.transactionType}
+              name="category"
+              value={formData.category}
               onChange={handleChange}
               className={styles.formSelect}
             >
               <option value="rent">Аренда</option>
               <option value="sale">Продажа</option>
-              <option value="both">Аренда/Продажа</option>
             </select>
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>
-                {formData.transactionType === 'rent' ? 'Цена аренды (₽/мес) *' : 
-                 formData.transactionType === 'sale' ? 'Цена продажи (₽) *' : 
-                 'Цена продажи (₽) *'}
+                {formData.category === 'rent' ? 'Цена аренды (₽/мес) *' : 'Цена продажи (₽) *'}
               </label>
               <input
                 type="text"
-                name="price"
-                value={formatPrice(formData.price)}
+                name={formData.category === 'rent' ? 'rentPrice' : 'price'}
+                value={formatPrice(formData.category === 'rent' ? formData.rentPrice : formData.price)}
                 onChange={(e) => {
                   const value = parsePrice(e.target.value);
                   setFormData({
                     ...formData,
-                    price: value ? Number(value) : 0
+                    [formData.category === 'rent' ? 'rentPrice' : 'price']: value ? Number(value) : 0
                   });
                 }}
                 required
                 className={styles.formInput}
-                placeholder="1000000"
+                placeholder={formData.category === 'rent' ? '30000' : '1000000'}
               />
             </div>
 
-            {(formData.transactionType === 'rent' || formData.transactionType === 'both') && (
-              <div className={styles.formGroup}>
-                <label>Цена аренды (₽/мес) *</label>
-                <input
-                  type="text"
-                  name="rentPrice"
-                  value={formatPrice(formData.rentPrice)}
-                  onChange={(e) => {
-                    const value = parsePrice(e.target.value);
-                    setFormData({
-                      ...formData,
-                      rentPrice: value ? Number(value) : 0
-                    });
-                  }}
-                  required={formData.transactionType === 'rent'}
-                  className={styles.formInput}
-                  placeholder="30000"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>Площадь (м²) *</label>
               <input
@@ -241,21 +213,21 @@ const EditPropertyModal = ({ property, onSave, onClose }) => {
                 step="0.1"
               />
             </div>
-
-            {(formData.type === 'apartment' || formData.type === 'house') && (
-              <div className={styles.formGroup}>
-                <label>Количество комнат</label>
-                <input
-                  type="number"
-                  name="rooms"
-                  value={formData.rooms}
-                  onChange={handleNumberChange}
-                  className={styles.formInput}
-                  min="1"
-                />
-              </div>
-            )}
           </div>
+
+          {(formData.type === 'apartment' || formData.type === 'house') && (
+            <div className={styles.formGroup}>
+              <label>Количество комнат</label>
+              <input
+                type="number"
+                name="rooms"
+                value={formData.rooms}
+                onChange={handleNumberChange}
+                className={styles.formInput}
+                min="1"
+              />
+            </div>
+          )}
 
           <div className={styles.formGroup}>
             <label>Адрес *</label>
@@ -266,35 +238,8 @@ const EditPropertyModal = ({ property, onSave, onClose }) => {
               onChange={handleChange}
               required
               className={styles.formInput}
-              placeholder="ул. Примерная, д. 123"
+              placeholder="ул. Примерная, д. 123, Москва"
             />
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Город *</label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                required
-                className={styles.formInput}
-                placeholder="Москва"
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Район</label>
-              <input
-                type="text"
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                className={styles.formInput}
-                placeholder="Центральный район"
-              />
-            </div>
           </div>
 
           <div className={styles.formGroup}>

@@ -27,7 +27,13 @@ const PropertiesManagement = () => {
                               Array.isArray(response.data) ? response.data : 
                               [];
         
-        setProperties(propertiesData);
+        // Добавляем поле isActive на основе статуса для совместимости
+        const propertiesWithActive = propertiesData.map(prop => ({
+          ...prop,
+          isActive: prop.status !== 'inactive'
+        }));
+        
+        setProperties(propertiesWithActive);
       } else {
         setError(response?.data?.message || response?.message || 'Не удалось загрузить объекты');
       }
@@ -61,7 +67,7 @@ const PropertiesManagement = () => {
         setFilteredProperties(properties);
         break;
       case 'available':
-        setFilteredProperties(properties.filter(prop => prop.status === 'available' && prop.isActive));
+        setFilteredProperties(properties.filter(prop => prop.status === 'active'));
         break;
       case 'rented':
         setFilteredProperties(properties.filter(prop => prop.status === 'rented'));
@@ -73,7 +79,7 @@ const PropertiesManagement = () => {
         setFilteredProperties(properties.filter(prop => prop.status === 'maintenance'));
         break;
       case 'inactive':
-        setFilteredProperties(properties.filter(prop => !prop.isActive));
+        setFilteredProperties(properties.filter(prop => prop.status === 'inactive'));
         break;
       default:
         setFilteredProperties(properties);
@@ -133,7 +139,8 @@ const PropertiesManagement = () => {
           prevProperties.map(prop => 
             prop.id === propertyId ? {
               ...prop,
-              status: updatedProperty.status || newStatus
+              status: updatedProperty.status || newStatus,
+              isActive: newStatus !== 'inactive'
             } : prop
           )
         );
@@ -158,6 +165,7 @@ const PropertiesManagement = () => {
           prevProperties.map(prop => 
             prop.id === propertyId ? {
               ...prop,
+              status: 'active',
               isActive: true
             } : prop
           )
@@ -185,6 +193,7 @@ const PropertiesManagement = () => {
               prop.id === editingProperty.id ? {
                 ...prop,
                 ...updatedProperty,
+                isActive: updatedProperty.status !== 'inactive',
                 updatedAt: new Date().toISOString()
               } : prop
             )
@@ -199,7 +208,10 @@ const PropertiesManagement = () => {
         
         if (response && response.success) {
           const newProperty = response.data || response;
-          setProperties(prevProperties => [...prevProperties, newProperty]);
+          setProperties(prevProperties => [...prevProperties, {
+            ...newProperty,
+            isActive: newProperty.status !== 'inactive'
+          }]);
           setError('');
           fetchStats();
         } else {
@@ -230,10 +242,12 @@ const PropertiesManagement = () => {
 
   const getStatusDisplay = (status) => {
     const statusMap = {
+      'active': 'Доступен',
       'available': 'Доступен',
       'rented': 'Арендован',
       'sold': 'Продан',
-      'maintenance': 'На обслуживании'
+      'maintenance': 'На обслуживании',
+      'inactive': 'Неактивен'
     };
     return statusMap[status] || status;
   };
@@ -259,14 +273,11 @@ const PropertiesManagement = () => {
 
   const propertyStats = {
     total: properties.length,
-    available: properties.filter(p => p.status === 'available' && p.isActive).length,
+    available: properties.filter(p => p.status === 'active').length,
     rented: properties.filter(p => p.status === 'rented').length,
     sold: properties.filter(p => p.status === 'sold').length,
     maintenance: properties.filter(p => p.status === 'maintenance').length,
-    inactive: properties.filter(p => !p.isActive).length,
-    forRent: properties.filter(p => p.transactionType === 'rent').length,
-    forSale: properties.filter(p => p.transactionType === 'sale').length,
-    forBoth: properties.filter(p => p.transactionType === 'both').length
+    inactive: properties.filter(p => p.status === 'inactive').length
   };
 
   return (
@@ -393,7 +404,7 @@ const PropertiesManagement = () => {
                   <td>
                     <div className={styles.propertyTitle}>
                       {property.title}
-                      {!property.isActive && <span className={styles.inactiveBadge}>Неактивно</span>}
+                      {property.status === 'inactive' && <span className={styles.inactiveBadge}>Неактивно</span>}
                     </div>
                   </td>
                   <td>{getTypeDisplay(property.type)}</td>
@@ -403,13 +414,14 @@ const PropertiesManagement = () => {
                       onChange={(e) => handleChangeStatus(property.id, e.target.value)}
                       className={styles.statusSelect}
                     >
-                      <option value="available">Доступен</option>
+                      <option value="active">Доступен</option>
                       <option value="rented">Арендован</option>
                       <option value="sold">Продан</option>
                       <option value="maintenance">Обслуживание</option>
+                      <option value="inactive">Неактивен</option>
                     </select>
                   </td>
-                  <td>{getTransactionTypeDisplay(property.transactionType)}</td>
+                  <td>{getTransactionTypeDisplay(property.category)}</td>
                   <td>
                     {formatPrice(property.price)} ₽
                     {property.rentPrice && (
@@ -419,7 +431,7 @@ const PropertiesManagement = () => {
                     )}
                   </td>
                   <td>{property.area} м²</td>
-                  <td>{property.city}</td>
+                  <td>{property.city || property.address}</td>
                   <td>{formatDate(property.createdAt)}</td>
                   <td>
                     <div className={styles.actionButtons}>
@@ -430,7 +442,7 @@ const PropertiesManagement = () => {
                       >
                         ✏️
                       </button>
-                      {property.isActive ? (
+                      {property.status !== 'inactive' ? (
                         <button 
                           className={`${styles.actionButton} ${styles.deleteButton}`}
                           onClick={() => handleDeleteProperty(property.id)}
