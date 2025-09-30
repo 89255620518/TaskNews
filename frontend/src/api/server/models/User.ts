@@ -41,7 +41,6 @@ class User implements UserAttributes {
     this.createdAt = attributes.createdAt || new Date();
     this.updatedAt = attributes.updatedAt || new Date();
     
-    // Инициализируем при первом создании экземпляра
     User.ensureInitialized();
   }
 

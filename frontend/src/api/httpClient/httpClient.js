@@ -1,6 +1,7 @@
 import { RequestHandler } from './request-handler.js';
 import { AuthManager } from './auth-manager.js';
 import { UserManager } from './user-manager.js';
+import { PropertyManager } from './object-manager.js';
 
 export class HttpClient {
   constructor(baseURL) {
@@ -11,9 +12,11 @@ export class HttpClient {
     };
     this.delay = 200;
     
+    // Инициализация менеджеров
     this.requestHandler = new RequestHandler(this);
     this.authManager = new AuthManager(this);
     this.userManager = new UserManager(this);
+    this.propertyManager = new PropertyManager(this);
     
     this._initStorage();
   }
@@ -58,7 +61,6 @@ export class HttpClient {
       localStorage.setItem('users', JSON.stringify(filteredUsers));
       console.log('✅ Администратор создан с вашими данными');
     } else {
-      
       const adminIndex = filteredUsers.findIndex(user => user.email === adminEmail);
       filteredUsers[adminIndex] = {
         ...filteredUsers[adminIndex],
@@ -168,12 +170,12 @@ export class HttpClient {
 
   _getHeaders() {
     const headers = {
-        'Content-Type': 'application/json'
+      'Content-Type': 'application/json'
     };
 
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
+      headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
     return headers;
@@ -188,6 +190,7 @@ export class HttpClient {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('tokens');
     localStorage.removeItem('users');
+    localStorage.removeItem('properties');
     this._initStorage();
   }
 }

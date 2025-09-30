@@ -1,7 +1,8 @@
 import HttpClient from './httpClient/httpClient';
-import { UsersAPI } from './authApi/userApi';
-import { AdminAPI } from './authApi/adminApi';
-import { AuthAPI } from './authApi/authApi';
+import { UsersAPI } from './apiClient/userApi';
+import { AdminAPI } from './apiClient/adminApi';
+import { AuthAPI } from './apiClient/authApi';
+import { PropertyAPI } from './apiClient/objectApi';
 
 const BASE_URL = 'http://127.0.0.1:3000';
 
@@ -41,6 +42,7 @@ export const api = {
   auth: new AuthAPI(httpClient),
   users: new UsersAPI(httpClient),
   admin: new AdminAPI(httpClient),
+  properties: new PropertyAPI(httpClient),
   httpClient
 };
 

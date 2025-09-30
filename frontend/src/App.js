@@ -9,7 +9,8 @@ import RegisterPage from './pages/register';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './useContext/AuthContext';
 import AdminPage from './pages/admin';
-import { ApiRoutes } from './api/server/routes/authRoutes';
+import { ApiRoutes } from './api/server/routes/auth/authRoutes';
+import { PropertyRoutes } from './api/server/routes/object/objectRoutes';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -84,6 +85,7 @@ function AppContent() {
       </Helmet>
       <Router>
         <ApiRoutes />
+        <PropertyRoutes />
         
         <Header
           modalOpen={modalOpen}

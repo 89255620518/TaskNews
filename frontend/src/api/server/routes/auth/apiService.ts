@@ -10,8 +10,8 @@ import {
   logout, 
   updateUserRole, 
   getCurrentUser 
-} from '../controllers/authController';
-import { authenticate } from '../middlewares/authMiddleware';
+} from '../../controllers/authController';
+import { authenticate } from '../../middlewares/authMiddleware';
 
 class ApiService {
   private token: string | null = null;
