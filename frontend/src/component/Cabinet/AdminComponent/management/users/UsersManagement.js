@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../../../../api/api';
-import { useAuth } from '../../../../useContext/AuthContext';
+import { api } from '../../../../../api/api';
+import { useAuth } from '../../../../../useContext/AuthContext';
 import EditUserModal from './EditUserModal';
 import styles from '../../admin.module.scss';
 

@@ -3,12 +3,12 @@ import { Helmet } from "react-helmet";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from './component/Header/header';
 import HomePage from './pages';
-import CabinetPage from './pages/cabinet';
+import CabinetPage from './pages/Cabinet/cabinet';
 import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './useContext/AuthContext';
-import AdminPage from './pages/admin';
+import AdminPage from './pages/Cabinet/admin';
 import { ApiRoutes } from './api/server/routes/auth/authRoutes';
 import { PropertyRoutes } from './api/server/routes/object/objectRoutes';
 

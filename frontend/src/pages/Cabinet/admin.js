@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import AdminComponent from "../component/AdminComponent/adminComponent";
+import AdminComponent from "../../component/Cabinet/AdminComponent/adminComponent";
 
 const AdminPage = () => {
 

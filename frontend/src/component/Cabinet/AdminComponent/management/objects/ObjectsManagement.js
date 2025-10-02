@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../../../../api/api';
+import { api } from '../../../../../api/api';
 import EditPropertyModal from './EditObjectModal';
 import styles from '../../admin.module.scss';
 

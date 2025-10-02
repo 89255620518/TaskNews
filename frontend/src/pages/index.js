@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import CabinetPage from "./cabinet";
+import CabinetPage from "./Cabinet/cabinet";
 import { useAuth } from '../useContext/AuthContext';
 import { Navigate } from 'react-router-dom';
 

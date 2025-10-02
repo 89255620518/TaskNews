@@ -10,7 +10,6 @@ const Header = ({
 }) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1000);
     const { 
-        token, 
         user, 
         isAuthenticated, 
         isAdmin, 

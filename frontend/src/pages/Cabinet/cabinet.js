@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import CabinetComponent from "../component/CabinetComponent/cabinetComponent";
+import CabinetComponent from "../../component/Cabinet/CabinetComponent/cabinetComponent";
 
 const CabinetPage = () => {
 

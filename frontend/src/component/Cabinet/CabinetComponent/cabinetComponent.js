@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../useContext/AuthContext';
-import { api } from '../../api/api';
+import { useAuth } from '../../../useContext/AuthContext';
+import { api } from '../../../api/api';
 import styles from './cabinet.module.scss';
 
 const CabinetComponent = () => {

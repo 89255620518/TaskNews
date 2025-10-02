@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../useContext/AuthContext';
+import { useAuth } from '../../../useContext/AuthContext';
 import UsersManagement from './management/users/UsersManagement';
 import PropertiesManagement from './management/objects/ObjectsManagement';
 import styles from './admin.module.scss';
 
 const AdminComponent = () => {
-  const { token, logout: authLogout, user, isAdmin } = useAuth();
+  const { token, logout: user, isAdmin } = useAuth();
   const [currentSection, setCurrentSection] = useState('users');
   const [adminData, setAdminData] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
