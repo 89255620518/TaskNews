@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userRole, setUserRole] = useState(null);
 
-    // Функция для установки состояния аутентификации
     const setAuthState = useCallback((newAccessToken, newRefreshToken, userData, authenticated) => {
         if (newAccessToken && authenticated && userData) {
             localStorage.setItem('accessToken', newAccessToken);
@@ -34,7 +33,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    // Валидация accessToken
     const validateToken = useCallback(async (tokenToValidate) => {
         if (!tokenToValidate) return false;
         
@@ -52,7 +50,6 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Token validation error:', error);
             
-            // Пробуем обновить токен
             const savedRefreshToken = localStorage.getItem('refreshToken');
             if (savedRefreshToken) {
                 try {
@@ -61,7 +58,6 @@ export const AuthProvider = ({ children }) => {
                         const newAccessToken = refreshResponse.data.accessToken;
                         const newRefreshToken = refreshResponse.data.refreshToken;
                         
-                        // Получаем данные пользователя с новым токеном
                         const userResponse = await api.auth.getCurrentUser();
                         if (userResponse && userResponse.success) {
                             setAuthState(newAccessToken, newRefreshToken, userResponse.data, true);
@@ -78,7 +74,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, [setAuthState]);
 
-    // Инициализация аутентификации при загрузке приложения
     useEffect(() => {
         const initializeAuth = async () => {
             const savedAccessToken = localStorage.getItem('accessToken');
@@ -96,9 +91,7 @@ export const AuthProvider = ({ children }) => {
         initializeAuth();
     }, [validateToken, setAuthState]);
 
-    // Логин
     const login = async (credentials) => {
-        // setIsLoading(true);
         try {
             const response = await api.auth.login(credentials);
             console.log('Login response:', response);
@@ -130,7 +123,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Регистрация
     const register = async (userData) => {
         setIsLoading(true);
         try {
@@ -156,7 +148,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Логаут
     const logout = async () => {
         setIsLoading(true);
         try {
@@ -169,7 +160,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Обновление токена
     const refreshAuthToken = async () => {
         try {
             const savedRefreshToken = localStorage.getItem('refreshToken');
@@ -195,7 +185,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Обновление профиля
     const updateProfile = async (userData) => {
         try {
             const response = await api.auth.updateProfile(userData);
@@ -222,11 +211,12 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Проверки ролей
     const hasRole = (role) => userRole === role;
     const hasAnyRole = (roles) => roles.includes(userRole);
     const isAdmin = () => userRole === 'admin';
-
+    const isManager = () => userRole === 'manager';
+    const isSupport = () => userRole === 'support';
+ 
     return (
         <AuthContext.Provider value={{ 
             token: accessToken,
@@ -243,7 +233,9 @@ export const AuthProvider = ({ children }) => {
             isAuthenticated,
             hasRole,
             hasAnyRole,
-            isAdmin
+            isAdmin,
+            isManager,
+            isSupport
         }}>
             {children}
         </AuthContext.Provider>

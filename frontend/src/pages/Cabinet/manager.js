@@ -1,14 +1,14 @@
 import { Helmet } from "react-helmet";
-import AdminComponent from "../../component/AdminComponent/adminComponent";
+import ManagerComponent from "../../component/Cabinet/ManagerComponent/managerComponent";
 
 const ManagerPage = () => {
 
     return (
         <div style={{ background: "#ffffff" }}>
             <Helmet>
-                <title>ТЗ/Панель менеджера по аренде</title>
+                <title>ТЗ/Кабинет менеджера по аренде</title>
             </Helmet>
-            <AdminComponent />
+            <ManagerComponent />
         </div>
     )
 }

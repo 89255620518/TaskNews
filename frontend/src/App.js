@@ -4,11 +4,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Header from './component/Header/header';
 import HomePage from './pages';
 import CabinetPage from './pages/Cabinet/cabinet';
+import AdminPage from './pages/Cabinet/admin';
+import ManagerPage from './pages/Cabinet/manager';
 import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './useContext/AuthContext';
-import AdminPage from './pages/Cabinet/admin';
 import { ApiRoutes } from './api/server/routes/auth/authRoutes';
 import { PropertyRoutes } from './api/server/routes/object/objectRoutes';
 
@@ -44,6 +45,20 @@ const AdminRoute = ({ children }) => {
   }
   
   return isAdmin() ? children : <Navigate to="/cabinet" replace />;
+};
+
+const ManagerRoute = ({ children }) => {
+  const { isAuthenticated, isLoading, isManager } = useAuth();
+  
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return isManager() ? children : <Navigate to="/cabinet" replace />;
 };
 
 const AppLoader = () => {
@@ -129,6 +144,15 @@ function AppContent() {
               <AdminRoute>
                 <AdminPage />
               </AdminRoute>
+            } 
+          />
+
+          <Route 
+            path="/manager" 
+            element={
+              <ManagerRoute>
+                <ManagerPage />
+              </ManagerRoute>
             } 
           />
           

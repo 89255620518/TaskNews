@@ -1,0 +1,649 @@
+// Базовые стили для всех компонентов управления
+.section {
+  padding: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+
+  h2 {
+    color: #2d3748;
+    margin: 0;
+    font-size: 1.8rem;
+  }
+}
+
+.sectionStats {
+  display: flex;
+  gap: 15px;
+
+  .stat {
+    background: #edf2f7;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4a5568;
+  }
+}
+
+.loadingSection {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: #a0aec0;
+  
+  p {
+    font-size: 1.1rem;
+  }
+}
+
+// Стили для поиска
+.searchBox {
+  margin-bottom: 25px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+}
+
+// Стили для фильтров
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  padding: 10px 20px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  
+  &:hover {
+    border-color: #667eea;
+    transform: translateY(-1px);
+  }
+  
+  &.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  }
+}
+
+// Общие стили для карточек
+.requestCard, .clientCard, .propertyCard, .rentalCard {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  }
+
+  &.new {
+    border-left: 4px solid #48bb78;
+  }
+  
+  &.processing {
+    border-left: 4px solid #ed8936;
+  }
+  
+  &.approved {
+    border-left: 4px solid #4299e1;
+  }
+  
+  &.rejected {
+    border-left: 4px solid #f56565;
+  }
+}
+
+// Стили для заголовков карточек
+.requestHeader, .rentalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+
+  h3 {
+    margin: 0;
+    color: #2d3748;
+  }
+}
+
+.requestTitle, .rentalTitle {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+// Стили для бейджей статусов
+.statusBadge, .contractBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  
+  &.new, &.active {
+    background: #c6f6d5;
+    color: #22543d;
+  }
+  
+  &.processing {
+    background: #fed7d7;
+    color: #742a2a;
+  }
+  
+  &.approved {
+    background: #bee3f8;
+    color: #1a365d;
+  }
+  
+  &.rejected, &.inactive {
+    background: #e2e8f0;
+    color: #4a5568;
+  }
+  
+  &.soon {
+    background: #fefcbf;
+    color: #744210;
+  }
+  
+  &.overdue {
+    background: #fed7d7;
+    color: #742a2a;
+  }
+  
+  &.normal {
+    background: #c6f6d5;
+    color: #22543d;
+  }
+}
+
+.contractNumber {
+  background: #edf2f7;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+// Стили для основной информации
+.requestMain, .rentalMain {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.clientInfo, .propertyInfo, .rentalInfo, .paymentInfo {
+  h4 {
+    margin: 0 0 10px 0;
+    color: #2d3748;
+    font-size: 1rem;
+  }
+  
+  p {
+    margin: 5px 0;
+    color: #4a5568;
+    font-size: 0.9rem;
+    
+    strong {
+      color: #2d3748;
+    }
+  }
+}
+
+// Стили для действий
+.requestActions, .clientActions, .propertyActions, .rentalActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+// Общие стили кнопок
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Специфичные стили кнопок
+.approveBtn, .activateBtn {
+  background: #48bb78;
+  color: white;
+  
+  &:hover {
+    background: #38a169;
+  }
+}
+
+.rejectBtn, .deactivateBtn, .terminateBtn {
+  background: #f56565;
+  color: white;
+  
+  &:hover {
+    background: #e53e3e;
+  }
+}
+
+.processBtn {
+  background: #ed8936;
+  color: white;
+  
+  &:hover {
+    background: #dd6b20;
+  }
+}
+
+.resetBtn {
+  background: #a0aec0;
+  color: white;
+  
+  &:hover {
+    background: #718096;
+  }
+}
+
+.contactBtn, .extendBtn {
+  background: #4299e1;
+  color: white;
+  
+  &:hover {
+    background: #3182ce;
+  }
+}
+
+.messageBtn {
+  background: #9f7aea;
+  color: white;
+  
+  &:hover {
+    background: #805ad5;
+  }
+}
+
+.editBtn {
+  background: #ed8936;
+  color: white;
+  
+  &:hover {
+    background: #dd6b20;
+  }
+}
+
+.detailsBtn {
+  background: #e2e8f0;
+  color: #4a5568;
+  
+  &:hover {
+    background: #cbd5e0;
+  }
+}
+
+// Стили для дополнительной информации
+.requestDetails, .clientAdditionalInfo, .propertyAdditionalInfo, .rentalAdditionalInfo {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.detailSection, .additionalSection {
+  margin-bottom: 15px;
+  
+  h4 {
+    margin: 0 0 8px 0;
+    color: #2d3748;
+    font-size: 0.9rem;
+  }
+  
+  p {
+    margin: 0;
+    color: #4a5568;
+    font-size: 0.85rem;
+  }
+}
+
+// Стили для клиентов
+.clientHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.clientAvatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.clientMainInfo {
+  h3 {
+    margin: 0 0 5px 0;
+    color: #2d3748;
+  }
+}
+
+.clientEmail {
+  margin: 0;
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.clientDetails {
+  margin-bottom: 15px;
+  
+  p {
+    margin: 3px 0;
+    font-size: 0.9rem;
+    color: #4a5568;
+    
+    strong {
+      color: #2d3748;
+    }
+  }
+}
+
+.notesTextarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  resize: vertical;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+}
+
+// Стили для объектов недвижимости
+.propertiesGrid, .clientsGrid, .rentalsGrid {
+  display: grid;
+  gap: 20px;
+}
+
+.propertyImage {
+  position: relative;
+  height: 200px;
+  background: #f7fafc;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.noImage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #a0aec0;
+  
+  span {
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.propertyBadges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.typeBadge, .categoryBadge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  
+  &.apartment {
+    background: #4299e1;
+  }
+  
+  &.commercial {
+    background: #9f7aea;
+  }
+  
+  &.house {
+    background: #ed8936;
+  }
+  
+  &.room {
+    background: #48bb78;
+  }
+  
+  &.rent {
+    background: #38a169;
+  }
+  
+  &.sale {
+    background: #e53e3e;
+  }
+}
+
+.propertyDetails {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  
+  span {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-bottom: 4px;
+  }
+  
+  strong {
+    font-size: 0.9rem;
+    color: #2d3748;
+  }
+}
+
+.propertyPrices {
+  margin: 15px 0;
+}
+
+.priceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  
+  span {
+    color: #718096;
+    font-size: 0.9rem;
+  }
+  
+  .rentPrice {
+    color: #48bb78;
+    font-size: 1rem;
+  }
+  
+  .salePrice {
+    color: #667eea;
+    font-size: 1rem;
+  }
+}
+
+.propertyDescription {
+  color: #718096;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 10px 0;
+}
+
+.amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.amenity {
+  background: #edf2f7;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #4a5568;
+}
+
+// Стили для истории платежей
+.paymentHistory {
+  .paymentItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .paid {
+      color: #48bb78;
+      font-weight: 600;
+    }
+  }
+}
+
+.paymentStatus {
+  font-weight: 600;
+  
+  &.soon {
+    color: #d69e2e;
+  }
+  
+  &.overdue {
+    color: #e53e3e;
+  }
+  
+  &.normal {
+    color: #38a169;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .sectionStats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .filters {
+    justify-content: flex-start;
+  }
+
+  .requestMain, .rentalMain {
+    grid-template-columns: 1fr;
+  }
+
+  .propertyDetails {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .requestActions, .clientActions, .propertyActions, .rentalActions {
+    justify-content: center;
+  }
+
+  .requestHeader, .rentalHeader {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .requestTitle, .rentalTitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

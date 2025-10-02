@@ -1,0 +1,204 @@
+.managerContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #8de187 0%, #e59e1d 100%);
+  padding: 20px;
+}
+
+.managerHeader {
+  background: white;
+  border-radius: 15px;
+  padding: 60px 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.managerTitle {
+  color: #2d3748;
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.managerInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f7fafc;
+  border-radius: 10px;
+  
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    
+    strong {
+      color: #4a5568;
+    }
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  
+  .statIcon {
+    font-size: 2rem;
+  }
+  
+  .statInfo {
+    h3 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    
+    p {
+      margin: 5px 0 0 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.managerNavigation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.navButton {
+  background: #edf2f7;
+  border: 2px solid transparent;
+  padding: 15px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: #667eea;
+    color: white;
+    border-color: #5a67d8;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+}
+
+.managerContent {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  min-height: 500px;
+}
+
+// Состояния доступа и загрузки
+.accessDenied {
+  text-align: center;
+  background: white;
+  padding: 60px 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    color: #e53e3e;
+    margin-bottom: 15px;
+  }
+  
+  p {
+    color: #4a5568;
+    margin: 10px 0;
+  }
+}
+
+.loading {
+  text-align: center;
+  background: white;
+  padding: 60px 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+  color: #667eea;
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .managerContainer {
+    padding: 10px;
+  }
+  
+  .managerHeader {
+    padding: 20px;
+  }
+  
+  .managerTitle {
+    font-size: 2rem;
+  }
+  
+  .managerInfo {
+    grid-template-columns: 1fr;
+    padding: 15px;
+  }
+  
+  .managerNavigation {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .managerContent {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .managerTitle {
+    font-size: 1.5rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statCard {
+    padding: 15px;
+    
+    .statIcon {
+      font-size: 1.5rem;
+    }
+    
+    .statInfo {
+      h3 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+  
+  .navButton {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+}

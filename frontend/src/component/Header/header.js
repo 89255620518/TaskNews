@@ -34,6 +34,16 @@ const Header = ({
         navigate('/admin');
     };
 
+    const handleManagerClick = () => {
+        modalClosed();
+        navigate('/manager');
+    };
+
+    const handleSupportClick = () => {
+        modalClosed();
+        navigate('/support');
+    };
+
     const handleLoginClick = () => {
         modalClosed();
         navigate('/login');
@@ -55,8 +65,10 @@ const Header = ({
         navigate('/');
     };
 
-    // Проверяем, является ли пользователь администратором
+    // Проверяем роли пользователя
     const userIsAdmin = isAdmin();
+    const userIsManager = user?.role === 'manager';
+    const userIsSupport = user?.role === 'support';
 
     return (
         <div className={`${styles.containerHeader} ${styles.webAppHeader}`}>
@@ -103,6 +115,26 @@ const Header = ({
                                         </Link>
                                     )}
                                     
+                                    {isAuthenticated && userIsManager && (
+                                        <Link 
+                                            to="/manager" 
+                                            onClick={handleManagerClick}
+                                            className={location.pathname === '/manager' ? styles.active : ''}
+                                        >
+                                            <span>Менеджер</span>
+                                        </Link>
+                                    )}
+                                    
+                                    {isAuthenticated && userIsSupport && (
+                                        <Link 
+                                            to="/support" 
+                                            onClick={handleSupportClick}
+                                            className={location.pathname === '/support' ? styles.active : ''}
+                                        >
+                                            <span>Поддержка</span>
+                                        </Link>
+                                    )}
+                                    
                                     {isAuthenticated ? (
                                         <button 
                                             onClick={handleLogoutClick}
@@ -131,6 +163,26 @@ const Header = ({
                                     className={`${styles.authButton} ${location.pathname === '/admin' ? styles.active : ''}`}
                                 >
                                     Админ
+                                </Link>
+                            )}
+                            
+                            {isAuthenticated && userIsManager && (
+                                <Link 
+                                    to="/manager" 
+                                    onClick={handleManagerClick}
+                                    className={`${styles.authButton} ${location.pathname === '/manager' ? styles.active : ''}`}
+                                >
+                                    Менеджер
+                                </Link>
+                            )}
+                            
+                            {isAuthenticated && userIsSupport && (
+                                <Link 
+                                    to="/support" 
+                                    onClick={handleSupportClick}
+                                    className={`${styles.authButton} ${location.pathname === '/support' ? styles.active : ''}`}
+                                >
+                                    Поддержка
                                 </Link>
                             )}
                             
@@ -200,6 +252,26 @@ const Header = ({
                                             className={`${styles.authButton} ${styles.adminButton} ${location.pathname === '/admin' ? styles.active : ''}`}
                                         >
                                             Админ
+                                        </Link>
+                                    )}
+                                    
+                                    {userIsManager && (
+                                        <Link 
+                                            to="/manager" 
+                                            onClick={handleManagerClick}
+                                            className={`${styles.authButton} ${styles.adminButton} ${location.pathname === '/manager' ? styles.active : ''}`}
+                                        >
+                                            Менеджер
+                                        </Link>
+                                    )}
+                                    
+                                    {userIsSupport && (
+                                        <Link 
+                                            to="/support" 
+                                            onClick={handleSupportClick}
+                                            className={`${styles.authButton} ${styles.adminButton} ${location.pathname === '/support' ? styles.active : ''}`}
+                                        >
+                                            Поддержка
                                         </Link>
                                     )}
                                     
