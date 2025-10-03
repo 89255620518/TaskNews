@@ -27,7 +27,6 @@ const PropertiesManagement = () => {
                               Array.isArray(response.data) ? response.data : 
                               [];
         
-        // Добавляем поле isActive на основе статуса для совместимости
         const propertiesWithActive = propertiesData.map(prop => ({
           ...prop,
           isActive: prop.status !== 'inactive'
@@ -271,6 +270,17 @@ const PropertiesManagement = () => {
     return typeMap[type] || type;
   };
 
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'active': return styles.active;
+      case 'inactive': return styles.inactive;
+      case 'rented': return styles.rented;
+      case 'sold': return styles.sold;
+      case 'maintenance': return styles.maintenance;
+      default: return styles.active;
+    }
+  };
+
   const propertyStats = {
     total: properties.length,
     available: properties.filter(p => p.status === 'active').length,
@@ -383,36 +393,150 @@ const PropertiesManagement = () => {
       )}
 
       {!loading && filteredProperties.length > 0 && (
-        <div className={styles.tableContainer}>
-          <table className={styles.dataTable}>
-            <thead>
-              <tr>
-                <th>Название</th>
-                <th>Тип</th>
-                <th>Статус</th>
-                <th>Тип сделки</th>
-                <th>Цена</th>
-                <th>Площадь</th>
-                <th>Город</th>
-                <th>Дата создания</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProperties.map(property => (
-                <tr key={property.id} className={styles.dataRow}>
-                  <td>
-                    <div className={styles.propertyTitle}>
-                      {property.title}
-                      {property.status === 'inactive' && <span className={styles.inactiveBadge}>Неактивно</span>}
-                    </div>
-                  </td>
-                  <td>{getTypeDisplay(property.type)}</td>
-                  <td>
+        <>
+          {/* Десктопная версия таблицы */}
+          <div className={styles.tableContainer}>
+            <table className={styles.dataTable}>
+              <thead>
+                <tr>
+                  <th>Название</th>
+                  <th>Тип</th>
+                  <th>Статус</th>
+                  <th>Тип сделки</th>
+                  <th>Цена</th>
+                  <th>Площадь</th>
+                  <th>Город</th>
+                  <th>Дата создания</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProperties.map(property => (
+                  <tr key={property.id} className={styles.dataRow}>
+                    <td>
+                      <div className={styles.propertyTitle}>
+                        {property.title}
+                        {property.status === 'inactive' && <span className={styles.inactiveBadge}>Неактивно</span>}
+                      </div>
+                    </td>
+                    <td>{getTypeDisplay(property.type)}</td>
+                    <td>
+                      <select
+                        value={property.status}
+                        onChange={(e) => handleChangeStatus(property.id, e.target.value)}
+                        className={styles.statusSelect}
+                      >
+                        <option value="active">Доступен</option>
+                        <option value="rented">Арендован</option>
+                        <option value="sold">Продан</option>
+                        <option value="maintenance">Обслуживание</option>
+                        <option value="inactive">Неактивен</option>
+                      </select>
+                    </td>
+                    <td>{getTransactionTypeDisplay(property.category)}</td>
+                    <td>
+                      {formatPrice(property.price)} ₽
+                      {property.rentPrice && (
+                        <div className={styles.rentPrice}>
+                          {formatPrice(property.rentPrice)} ₽/мес
+                        </div>
+                      )}
+                    </td>
+                    <td>{property.area} м²</td>
+                    <td>{property.city || property.address}</td>
+                    <td>{formatDate(property.createdAt)}</td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        <button 
+                          className={`${styles.actionButton} ${styles.editButton}`}
+                          onClick={() => handleEditProperty(property)}
+                          title="Редактировать"
+                        >
+                          ✏️
+                        </button>
+                        {property.status !== 'inactive' ? (
+                          <button 
+                            className={`${styles.actionButton} ${styles.deleteButton}`}
+                            onClick={() => handleDeleteProperty(property.id)}
+                            title="Удалить"
+                          >
+                            🗑️
+                          </button>
+                        ) : (
+                          <button 
+                            className={`${styles.actionButton} ${styles.restoreButton}`}
+                            onClick={() => handleRestoreProperty(property.id)}
+                            title="Восстановить"
+                          >
+                            🔄
+                          </button>
+                        )}
+                        <button 
+                          className={`${styles.actionButton} ${styles.destroyButton}`}
+                          onClick={() => handleDestroyProperty(property.id)}
+                          title="Полное удаление"
+                        >
+                          💥
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Мобильная версия таблицы */}
+          <div className={styles.mobileTable}>
+            {filteredProperties.map(property => (
+              <div key={property.id} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    {property.title}
+                    <span className={`${styles.mobileStatusBadge} ${getStatusBadgeClass(property.status)}`}>
+                      {getStatusDisplay(property.status)}
+                    </span>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button 
+                      className={`${styles.actionButton} ${styles.editButton}`}
+                      onClick={() => handleEditProperty(property)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
+                    {property.status !== 'inactive' ? (
+                      <button 
+                        className={`${styles.actionButton} ${styles.deleteButton}`}
+                        onClick={() => handleDeleteProperty(property.id)}
+                        title="Удалить"
+                      >
+                        🗑️
+                      </button>
+                    ) : (
+                      <button 
+                        className={`${styles.actionButton} ${styles.restoreButton}`}
+                        onClick={() => handleRestoreProperty(property.id)}
+                        title="Восстановить"
+                      >
+                        🔄
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Тип:</span>
+                  <span className={styles.mobileValue}>{getTypeDisplay(property.type)}</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Статус:</span>
+                  <div className={styles.mobileValue}>
                     <select
                       value={property.status}
                       onChange={(e) => handleChangeStatus(property.id, e.target.value)}
-                      className={styles.statusSelect}
+                      className={styles.mobileSelect}
                     >
                       <option value="active">Доступен</option>
                       <option value="rented">Арендован</option>
@@ -420,59 +544,58 @@ const PropertiesManagement = () => {
                       <option value="maintenance">Обслуживание</option>
                       <option value="inactive">Неактивен</option>
                     </select>
-                  </td>
-                  <td>{getTransactionTypeDisplay(property.category)}</td>
-                  <td>
+                  </div>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Сделка:</span>
+                  <span className={styles.mobileValue}>{getTransactionTypeDisplay(property.category)}</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Цена:</span>
+                  <span className={styles.mobileValue}>
                     {formatPrice(property.price)} ₽
                     {property.rentPrice && (
                       <div className={styles.rentPrice}>
                         {formatPrice(property.rentPrice)} ₽/мес
                       </div>
                     )}
-                  </td>
-                  <td>{property.area} м²</td>
-                  <td>{property.city || property.address}</td>
-                  <td>{formatDate(property.createdAt)}</td>
-                  <td>
-                    <div className={styles.actionButtons}>
-                      <button 
-                        className={`${styles.actionButton} ${styles.editButton}`}
-                        onClick={() => handleEditProperty(property)}
-                        title="Редактировать"
-                      >
-                        ✏️
-                      </button>
-                      {property.status !== 'inactive' ? (
-                        <button 
-                          className={`${styles.actionButton} ${styles.deleteButton}`}
-                          onClick={() => handleDeleteProperty(property.id)}
-                          title="Удалить"
-                        >
-                          🗑️
-                        </button>
-                      ) : (
-                        <button 
-                          className={`${styles.actionButton} ${styles.restoreButton}`}
-                          onClick={() => handleRestoreProperty(property.id)}
-                          title="Восстановить"
-                        >
-                          🔄
-                        </button>
-                      )}
-                      <button 
-                        className={`${styles.actionButton} ${styles.destroyButton}`}
-                        onClick={() => handleDestroyProperty(property.id)}
-                        title="Полное удаление"
-                      >
-                        💥
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Площадь:</span>
+                  <span className={styles.mobileValue}>{property.area} м²</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Город:</span>
+                  <span className={styles.mobileValue}>{property.city || property.address}</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Создан:</span>
+                  <span className={styles.mobileValue}>{formatDate(property.createdAt)}</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Полное удаление:</span>
+                  <div className={styles.mobileValue}>
+                    <button 
+                      className={`${styles.actionButton} ${styles.destroyButton}`}
+                      onClick={() => handleDestroyProperty(property.id)}
+                      title="Полное удаление"
+                      style={{width: '100%'}}
+                    >
+                      💥 Полное удаление
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {!loading && filteredProperties.length === 0 && (

@@ -294,65 +294,127 @@ const UsersManagement = () => {
       )}
 
       {!loading && filteredUsers.length > 0 && (
-        <div className={styles.tableContainer}>
-          <table className={styles.dataTable}>
-            <thead>
-              <tr>
-                <th>ФИО</th>
-                <th>Email</th>
-                <th>Телефон</th>
-                <th>Роль</th>
-                <th>Дата регистрации</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map(user => (
-                <tr key={user.id} className={styles.dataRow}>
-                  <td>
-                    <div className={styles.userName}>
-                      {user.lastName} {user.firstName} {user.patronymic}
-                    </div>
-                  </td>
-                  <td>{user.email}</td>
-                  <td>{formatPhone(user.phoneNumber)}</td>
-                  <td>
+        <>
+          <div className={styles.tableContainer}>
+            <table className={styles.dataTable}>
+              <thead>
+                <tr>
+                  <th>ФИО</th>
+                  <th>Email</th>
+                  <th>Телефон</th>
+                  <th>Роль</th>
+                  <th>Дата регистрации</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map(user => (
+                  <tr key={user.id} className={styles.dataRow}>
+                    <td>
+                      <div className={styles.userName}>
+                        {user.lastName} {user.firstName} {user.patronymic}
+                      </div>
+                    </td>
+                    <td>{user.email}</td>
+                    <td>{formatPhone(user.phoneNumber)}</td>
+                    <td>
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
+                        className={styles.roleSelect}
+                      >
+                        <option value="user">Клиент</option>
+                        <option value="admin">Администратор компании</option>
+                        <option value="manager">Менеджер по аренде</option>
+                        <option value="support">Служба поддержки</option>
+                      </select>
+                    </td>
+                    <td>{formatDate(user.createdAt)}</td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        <button 
+                          className={`${styles.actionButton} ${styles.editButton}`}
+                          onClick={() => handleEditUser(user)}
+                          title="Редактировать"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          className={`${styles.actionButton} ${styles.deleteButton}`}
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={user.id === currentUser?.id}
+                          title={user.id === currentUser?.id ? "Нельзя удалить себя" : "Удалить"}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className={styles.mobileTable}>
+            {filteredUsers.map(user => (
+              <div key={user.id} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    {user.lastName} {user.firstName} {user.patronymic}
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button 
+                      className={`${styles.actionButton} ${styles.editButton}`}
+                      onClick={() => handleEditUser(user)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      onClick={() => handleDeleteUser(user.id)}
+                      disabled={user.id === currentUser?.id}
+                      title={user.id === currentUser?.id ? "Нельзя удалить себя" : "Удалить"}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Email:</span>
+                  <span className={styles.mobileValue}>{user.email}</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Телефон:</span>
+                  <span className={styles.mobileValue}>{formatPhone(user.phoneNumber)}</span>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Роль:</span>
+                  <div className={styles.mobileValue}>
                     <select
                       value={user.role}
                       onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
-                      className={styles.roleSelect}
+                      className={styles.mobileSelect}
                     >
                       <option value="user">Клиент</option>
-                      <option value="admin">Администратор компании</option>
-                      <option value="manager">Менеджер по аренде</option>
-                      <option value="support">Служба поддержки</option>
+                      <option value="admin">Администратор</option>
+                      <option value="manager">Менеджер</option>
+                      <option value="support">Поддержка</option>
                     </select>
-                  </td>
-                  <td>{formatDate(user.createdAt)}</td>
-                  <td>
-                    <div className={styles.actionButtons}>
-                      <button 
-                        className={`${styles.actionButton} ${styles.editButton}`}
-                        onClick={() => handleEditUser(user)}
-                        title="Редактировать"
-                      >
-                        ✏️
-                      </button>
-                      <button 
-                        className={`${styles.actionButton} ${styles.deleteButton}`}
-                        onClick={() => handleDeleteUser(user.id)}
-                        disabled={user.id === currentUser?.id}
-                        title={user.id === currentUser?.id ? "Нельзя удалить себя" : "Удалить"}
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+                
+                <div className={styles.mobileCardRow}>
+                  <span className={styles.mobileLabel}>Регистрация:</span>
+                  <span className={styles.mobileValue}>{formatDate(user.createdAt)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {!loading && filteredUsers.length === 0 && (
