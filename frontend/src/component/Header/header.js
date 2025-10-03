@@ -67,7 +67,6 @@ const Header = ({
         navigate('/');
     };
 
-    // Проверяем роли пользователя
     const userIsAdmin = isAdmin();
     const userIsManager = isManager();
     const userIsSupport = isSupport();

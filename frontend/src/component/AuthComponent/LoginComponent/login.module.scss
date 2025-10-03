@@ -57,7 +57,6 @@
 }
 
 .input {
-    // базовые стили инпута
     padding: 12px 16px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -87,25 +86,6 @@
     margin-top: 4px;
     display: block;
 }
-
-// .input {
-//     padding: 12px 16px;
-//     border: 1px solid #ddd;
-//     border-radius: 8px;
-//     font-size: 16px;
-//     transition: border-color 0.3s;
-//     background: rgba(255, 255, 255, 0.8);
-
-//     &:focus {
-//         outline: none;
-//         border-color: #667eea;
-//         box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-//     }
-
-//     &::placeholder {
-//         color: #aaa;
-//     }
-// }
 
 .infoAuth {
     display: flex;
@@ -183,23 +163,21 @@
 .input {
     width: 100%;
     padding-right: 35px;
-    /* Оставляем место для иконки глаза */
 }
 
 .authError {
     width: 100%;
     padding: 12px 16px;
     margin-bottom: 20px;
-    background-color: #fee2e2; // светло-красный фон
-    color: #dc2626; // темно-красный текст
-    border: 1px solid #fca5a5; // граница
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     text-align: center;
     animation: fadeIn 0.3s ease-in-out;
 
-    // Анимация появления
     @keyframes fadeIn {
         from {
             opacity: 0;

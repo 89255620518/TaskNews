@@ -49,7 +49,6 @@ const ManagerComponent = () => {
   const loadStats = async () => {
     try {
       setLoading(true);
-      // Загрузка статистики для менеджера
       const [propertiesResponse, usersResponse] = await Promise.all([
         api.properties.getAllProperties(),
         api.users.getAll()

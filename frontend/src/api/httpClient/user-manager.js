@@ -44,7 +44,7 @@ export class UserManager {
     const existingUser = users.find(user => user.email === data.email);
     
     if (existingUser) {
-      throw { status: 400, message: 'Пользователь с этим email уже существует' };
+      throw new Error(JSON.stringify({ status: 400, message: 'Пользователь с этим email уже существует' }));
     }
 
     const newUser = {
@@ -77,12 +77,12 @@ export class UserManager {
     const user = users.find(u => u.id === parseInt(data.id));
     
     if (!user) {
-      throw { status: 404, message: 'Пользователь не найден' };
+      throw new Error(JSON.stringify({ status: 404, message: 'Пользователь не найден' }));
     }
 
     const tokenData = this._getTokenData(data);
     if (tokenData.role !== 'admin' && tokenData.userId !== parseInt(data.id)) {
-      throw { status: 403, message: 'Недостаточно прав' };
+      throw new Error(JSON.stringify({ status: 403, message: 'Недостаточно прав' }));
     }
 
     return {
@@ -98,12 +98,12 @@ export class UserManager {
     const userIndex = users.findIndex(u => u.id === parseInt(data.id));
     
     if (userIndex === -1) {
-      throw { status: 404, message: 'Пользователь не найден' };
+      throw new Error(JSON.stringify({ status: 404, message: 'Пользователь не найден' }));
     }
 
     const tokenData = this._getTokenData(data);
     if (tokenData.role !== 'admin' && tokenData.userId !== parseInt(data.id)) {
-      throw { status: 403, message: 'Недостаточно прав' };
+      throw new Error(JSON.stringify({ status: 403, message: 'Недостаточно прав' }));
     }
 
     const updatedUser = {
@@ -116,7 +116,7 @@ export class UserManager {
     if (data.email && data.email !== users[userIndex].email) {
       const emailExists = users.some(u => u.email === data.email && u.id !== parseInt(data.id));
       if (emailExists) {
-        throw { status: 400, message: 'Пользователь с этим email уже существует' };
+        throw new Error(JSON.stringify({ status: 400, message: 'Пользователь с этим email уже существует' }));
       }
     }
 
@@ -138,7 +138,7 @@ export class UserManager {
     const userIndex = users.findIndex(u => u.id === tokenData.userId);
     
     if (userIndex === -1) {
-      throw { status: 404, message: 'Пользователь не найден' };
+      throw new Error(JSON.stringify({ status: 404, message: 'Пользователь не найден' }));
     }
 
     const updatedUser = {
@@ -151,7 +151,7 @@ export class UserManager {
     if (data.email && data.email !== users[userIndex].email) {
       const emailExists = users.some(u => u.email === data.email && u.id !== tokenData.userId);
       if (emailExists) {
-        throw { status: 400, message: 'Пользователь с этим email уже существует' };
+        throw new Error(JSON.stringify({ status: 400, message: 'Пользователь с этим email уже существует' }));
       }
     }
 
@@ -171,14 +171,14 @@ export class UserManager {
 
     const tokenData = this._getTokenData(data);
     if (tokenData.userId === parseInt(data.id)) {
-      throw { status: 400, message: 'Нельзя удалить собственный аккаунт' };
+      throw new Error(JSON.stringify({ status: 400, message: 'Нельзя удалить собственный аккаунт' }));
     }
 
     const users = JSON.parse(localStorage.getItem('users'));
     const userIndex = users.findIndex(u => u.id === parseInt(data.id));
     
     if (userIndex === -1) {
-      throw { status: 404, message: 'Пользователь не найден' };
+      throw new Error(JSON.stringify({ status: 404, message: 'Пользователь не найден' }));
     }
 
     users.splice(userIndex, 1);
@@ -196,19 +196,19 @@ export class UserManager {
 
     const tokenData = this._getTokenData(data);
     if (tokenData.userId === parseInt(data.id)) {
-      throw { status: 400, message: 'Нельзя изменить свою собственную роль' };
+      throw new Error(JSON.stringify({ status: 400, message: 'Нельзя изменить свою собственную роль' }));
     }
 
     const users = JSON.parse(localStorage.getItem('users'));
     const userIndex = users.findIndex(u => u.id === parseInt(data.id));
     
     if (userIndex === -1) {
-      throw { status: 404, message: 'Пользователь не найден' };
+      throw new Error(JSON.stringify({ status: 404, message: 'Пользователь не найден' }));
     }
 
     const validRoles = ['user', 'admin', 'manager', 'support'];
     if (!validRoles.includes(data.role)) {
-      throw { status: 400, message: 'Некорректная роль' };
+      throw new Error(JSON.stringify({ status: 400, message: 'Некорректная роль' }));
     }
 
     users[userIndex].role = data.role;
@@ -253,7 +253,7 @@ export class UserManager {
   _checkAuth(data) {
     const tokenData = this._getTokenData(data);
     if (!tokenData) {
-      throw { status: 401, message: 'Не авторизован' };
+      throw new Error(JSON.stringify({ status: 401, message: 'Не авторизован' }));
     }
     return tokenData;
   }
@@ -261,14 +261,14 @@ export class UserManager {
   _checkAdmin(data) {
     const tokenData = this._checkAuth(data);
     if (tokenData.role !== 'admin') {
-      throw { status: 403, message: 'Недостаточно прав' };
+      throw new Error(JSON.stringify({ status: 403, message: 'Недостаточно прав' }));
     }
   }
 
   _checkManagerOrAdmin(data) {
     const tokenData = this._checkAuth(data);
     if (tokenData.role !== 'admin' && tokenData.role !== 'manager') {
-      throw { status: 403, message: 'Недостаточно прав' };
+      throw new Error(JSON.stringify({ status: 403, message: 'Недостаточно прав' }));
     }
     return tokenData;
   }

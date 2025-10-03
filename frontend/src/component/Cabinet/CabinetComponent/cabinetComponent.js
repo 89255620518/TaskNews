@@ -11,7 +11,8 @@ const CabinetComponent = () => {
         user,
         logout: authLogout, 
         updateProfile,
-        isAuthenticated 
+        isAuthenticated,
+        hasRole
     } = useAuth();
 
     const [userData, setUserData] = useState({
@@ -27,6 +28,11 @@ const CabinetComponent = () => {
     const [error, setError] = useState(null);
     const [isDataModalOpen, setIsDataModalOpen] = useState(false);
     const [saveLoading, setSaveLoading] = useState(false);
+    const [activeSection, setActiveSection] = useState('rentals');
+
+    const [rentals, setRentals] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const [documents, setDocuments] = useState([]);
 
     const handlePhoneChange = useCallback((value) => {
         let cleaned = value.replace(/[^\d+]/g, '');
@@ -49,7 +55,6 @@ const CabinetComponent = () => {
         return `+7 (${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 8)}-${digits.substring(8, 10)}`;
     }, []);
 
-    // Функция для преобразования роли
     const getRoleDisplay = useCallback((role) => {
         const roleMap = {
             'user': 'Клиент',
@@ -77,6 +82,91 @@ const CabinetComponent = () => {
         }
     }, [handlePhoneChange]);
 
+    const loadMockData = useCallback(() => {
+        const mockRentals = [
+            {
+                id: 1,
+                property: 'Квартира в центре',
+                address: 'г. Москва, ул. Тверская, д. 10, кв. 25',
+                period: '12 месяцев',
+                startDate: '2024-01-15',
+                endDate: '2025-01-14',
+                monthlyRent: 50000,
+                status: 'active',
+                nextPayment: '2024-02-15'
+            },
+            {
+                id: 2,
+                property: 'Апартаменты премиум',
+                address: 'г. Москва, Пресненская наб., д. 8',
+                period: '6 месяцев',
+                startDate: '2023-11-01',
+                endDate: '2024-04-30',
+                monthlyRent: 75000,
+                status: 'completed',
+                nextPayment: null
+            }
+        ];
+
+        const mockPayments = [
+            {
+                id: 1,
+                date: '2024-01-15',
+                amount: 50000,
+                type: 'арендная плата',
+                status: 'оплачен',
+                rentalId: 1
+            },
+            {
+                id: 2,
+                date: '2023-12-15',
+                amount: 50000,
+                type: 'арендная плата',
+                status: 'оплачен',
+                rentalId: 1
+            },
+            {
+                id: 3,
+                date: '2024-02-15',
+                amount: 50000,
+                type: 'арендная плата',
+                status: 'ожидает оплаты',
+                rentalId: 1
+            }
+        ];
+
+        const mockDocuments = [
+            {
+                id: 1,
+                name: 'Договор аренды',
+                type: 'договор',
+                date: '2024-01-10',
+                size: '2.4 МБ',
+                url: '#'
+            },
+            {
+                id: 2,
+                name: 'Акт приема-передачи',
+                type: 'акт',
+                date: '2024-01-15',
+                size: '1.8 МБ',
+                url: '#'
+            },
+            {
+                id: 3,
+                name: 'Квитанция об оплате',
+                type: 'квитанция',
+                date: '2024-01-15',
+                size: '0.8 МБ',
+                url: '#'
+            }
+        ];
+
+        setRentals(mockRentals);
+        setPayments(mockPayments);
+        setDocuments(mockDocuments);
+    }, []);
+
     useEffect(() => {
         if (!isAuthenticated || !token) {
             navigate('/login');
@@ -93,6 +183,10 @@ const CabinetComponent = () => {
                 role: user.role || 'user'
             });
             setLoading(false);
+            
+            if (hasRole('user')) {
+                loadMockData();
+            }
             return;
         }
 
@@ -114,6 +208,10 @@ const CabinetComponent = () => {
                         email: userDataFromResponse.email || '',
                         role: userDataFromResponse.role || 'user'
                     });
+
+                    if (userDataFromResponse.role === 'user') {
+                        loadMockData();
+                    }
                 } else {
                     setError(response.data?.message || 'Не удалось загрузить данные пользователя');
                 }
@@ -130,7 +228,7 @@ const CabinetComponent = () => {
         };
 
         fetchUserData();
-    }, [token, navigate, authLogout, isAuthenticated, user]);
+    }, [token, navigate, authLogout, isAuthenticated, user, hasRole, loadMockData]);
 
     const handleSaveData = async () => {
         try {
@@ -152,7 +250,6 @@ const CabinetComponent = () => {
             if (response.success) {
                 setIsDataModalOpen(false);
                 setError(null);
-                
                 console.log('Данные успешно обновлены в контексте');
             } else {
                 setError(response.error || 'Не удалось сохранить изменения');
@@ -210,29 +307,167 @@ const CabinetComponent = () => {
         }
     }, [user, isDataModalOpen]);
 
-    if (loading) {
-        return (
-            <div className={styles.containerCabinet}>
-                <div className={styles.loading}>Загрузка...</div>
-            </div>
-        );
-    }
-
-    if (error && !loading) {
-        return (
-            <div className={styles.containerCabinet}>
-                <div className={styles.error}>
-                    <p>{error}</p>
-                    <button onClick={() => window.location.reload()} className={styles.retryButton}>
-                        Попробовать снова
-                    </button>
+    const renderRentalsSection = () => (
+        <div className={styles.sectionContent}>
+            <h3>Моя аренда</h3>
+            {rentals.length === 0 ? (
+                <div className={styles.noData}>
+                    <p>У вас нет активной аренды</p>
+                    <button className={styles.primaryButton}>Найти объект для аренды</button>
                 </div>
-            </div>
-        );
-    }
+            ) : (
+                <div className={styles.rentalsList}>
+                    {rentals.map(rental => (
+                        <div key={rental.id} className={styles.rentalCard}>
+                            <div className={styles.rentalHeader}>
+                                <h4>{rental.property}</h4>
+                                <span className={`${styles.status} ${styles[rental.status]}`}>
+                                    {rental.status === 'active' ? 'Активна' : 'Завершена'}
+                                </span>
+                            </div>
+                            <div className={styles.rentalInfo}>
+                                <p><strong>Адрес:</strong> {rental.address}</p>
+                                <p><strong>Период аренды:</strong> {rental.period}</p>
+                                <p><strong>Дата начала:</strong> {new Date(rental.startDate).toLocaleDateString('ru-RU')}</p>
+                                <p><strong>Дата окончания:</strong> {new Date(rental.endDate).toLocaleDateString('ru-RU')}</p>
+                                <p><strong>Ежемесячная плата:</strong> {rental.monthlyRent.toLocaleString('ru-RU')} ₽</p>
+                                {rental.nextPayment && (
+                                    <p><strong>Следующий платеж:</strong> {new Date(rental.nextPayment).toLocaleDateString('ru-RU')}</p>
+                                )}
+                            </div>
+                            <div className={styles.rentalActions}>
+                                <button className={styles.secondaryButton}>Детали</button>
+                                {rental.status === 'active' && (
+                                    <button className={styles.primaryButton}>Оплатить</button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 
-    return (
-        <div className={styles.containerCabinet}>
+    const renderPaymentsSection = () => (
+        <div className={styles.sectionContent}>
+            <h3>Платежи</h3>
+            {payments.length === 0 ? (
+                <div className={styles.noData}>
+                    <p>Платежи не найдены</p>
+                </div>
+            ) : (
+                <div className={styles.paymentsList}>
+                    <div className={styles.paymentsHeader}>
+                        <span>Дата</span>
+                        <span>Сумма</span>
+                        <span>Тип</span>
+                        <span>Статус</span>
+                        <span>Действия</span>
+                    </div>
+                    {payments.map(payment => (
+                        <div key={payment.id} className={styles.paymentItem}>
+                            <span>{new Date(payment.date).toLocaleDateString('ru-RU')}</span>
+                            <span>{payment.amount.toLocaleString('ru-RU')} ₽</span>
+                            <span>{payment.type}</span>
+                            <span className={`${styles.paymentStatus} ${styles[payment.status]}`}>
+                                {payment.status}
+                            </span>
+                            <div className={styles.paymentActions}>
+                                {payment.status === 'ожидает оплаты' ? (
+                                    <button className={styles.primaryButton}>Оплатить</button>
+                                ) : (
+                                    <button className={styles.secondaryButton}>Квитанция</button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    const renderDocumentsSection = () => (
+        <div className={styles.sectionContent}>
+            <h3>Документы</h3>
+            {documents.length === 0 ? (
+                <div className={styles.noData}>
+                    <p>Документы не найдены</p>
+                </div>
+            ) : (
+                <div className={styles.documentsList}>
+                    {documents.map(doc => (
+                        <div key={doc.id} className={styles.documentItem}>
+                            <div className={styles.documentIcon}>📄</div>
+                            <div className={styles.documentInfo}>
+                                <h5>{doc.name}</h5>
+                                <p>Тип: {doc.type} • {new Date(doc.date).toLocaleDateString('ru-RU')} • {doc.size}</p>
+                            </div>
+                            <div className={styles.documentActions}>
+                                <button className={styles.primaryButton}>Скачать</button>
+                                <button className={styles.secondaryButton}>Просмотреть</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    const renderUserCabinet = () => (
+        <div className={styles.userCabinet}>
+            <div className={styles.profileHeader}>
+                <h2>{userData.last_name} {userData.first_name} {userData.patronymic}</h2>
+                <p><strong>Телефон:</strong> {formatPhoneDisplay(userData.phone)}</p>
+                <p><strong>Почта:</strong> {userData.email}</p>
+                <p><strong>Роль:</strong> {getRoleDisplay(userData.role)}</p>
+            </div>
+
+            <div className={styles.cabinetNavigation}>
+                <button 
+                    className={`${styles.navButton} ${activeSection === 'rentals' ? styles.active : ''}`}
+                    onClick={() => setActiveSection('rentals')}
+                >
+                    🏠 Моя аренда
+                </button>
+                <button 
+                    className={`${styles.navButton} ${activeSection === 'payments' ? styles.active : ''}`}
+                    onClick={() => setActiveSection('payments')}
+                >
+                    💰 Платежи
+                </button>
+                <button 
+                    className={`${styles.navButton} ${activeSection === 'documents' ? styles.active : ''}`}
+                    onClick={() => setActiveSection('documents')}
+                >
+                    📄 Документы
+                </button>
+                <button 
+                    className={styles.navButton}
+                    onClick={() => setIsDataModalOpen(true)}
+                >
+                    ⚙️ Редактировать профиль
+                </button>
+            </div>
+
+            <div className={styles.cabinetContent}>
+                {activeSection === 'rentals' && renderRentalsSection()}
+                {activeSection === 'payments' && renderPaymentsSection()}
+                {activeSection === 'documents' && renderDocumentsSection()}
+            </div>
+
+            <div className={styles.logoutSection}>
+                <button
+                    onClick={handleLogout}
+                    className={styles.logoutButton}
+                >
+                    🚪 Выйти из аккаунта
+                </button>
+            </div>
+        </div>
+    );
+
+    const renderSimpleCabinet = () => (
+        <div className={styles.simpleCabinet}>
             <div className={styles.profileHeader}>
                 <h2>{userData.last_name} {userData.first_name} {userData.patronymic}</h2>
                 <p><strong>Телефон:</strong> {formatPhoneDisplay(userData.phone)}</p>
@@ -257,6 +492,33 @@ const CabinetComponent = () => {
                     <span>Выйти</span>
                 </button>
             </div>
+        </div>
+    );
+
+    if (loading) {
+        return (
+            <div className={styles.containerCabinet}>
+                <div className={styles.loading}>Загрузка...</div>
+            </div>
+        );
+    }
+
+    if (error && !loading) {
+        return (
+            <div className={styles.containerCabinet}>
+                <div className={styles.error}>
+                    <p>{error}</p>
+                    <button onClick={() => window.location.reload()} className={styles.retryButton}>
+                        Попробовать снова
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.containerCabinet}>
+            {hasRole('user') ? renderUserCabinet() : renderSimpleCabinet()}
 
             {isDataModalOpen && (
                 <div className={styles.modalOverlay}>

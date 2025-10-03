@@ -4,31 +4,26 @@ export class PropertyManager {
     this.storageKey = 'properties';
   }
 
-  // Инициализация хранилища объектов
   _initStorage() {
     if (!localStorage.getItem(this.storageKey)) {
       localStorage.setItem(this.storageKey, JSON.stringify([]));
     }
   }
 
-  // Генерация нового ID
   _generateId() {
     const properties = this._getAllProperties();
     return properties.length > 0 ? Math.max(...properties.map(prop => prop.id)) + 1 : 1;
   }
 
-  // Получить все объекты из localStorage
   _getAllProperties() {
     this._initStorage();
     return JSON.parse(localStorage.getItem(this.storageKey));
   }
 
-  // Сохранить объекты в localStorage
   _saveProperties(properties) {
     localStorage.setItem(this.storageKey, JSON.stringify(properties));
   }
 
-  // Создать новый объект недвижимости
   async createProperty(propertyData) {
     try {
       const properties = this._getAllProperties();
@@ -53,7 +48,6 @@ export class PropertyManager {
         updatedAt: new Date().toISOString()
       };
 
-      // Валидация обязательных полей
       if (!newProperty.title) {
         throw new Error('Название объекта обязательно');
       }
@@ -78,7 +72,6 @@ export class PropertyManager {
     }
   }
 
-  // Получить объект по ID
   async getPropertyById(id) {
     try {
       const properties = this._getAllProperties();
@@ -99,33 +92,27 @@ export class PropertyManager {
     }
   }
 
-  // Получить все объекты с фильтрацией
   async getAllProperties(filters = {}) {
     try {
       let properties = this._getAllProperties();
 
-      // Фильтрация по статусу (по умолчанию только активные)
       if (filters.includeInactive !== true && filters.includeInactive !== 'true') {
         properties = properties.filter(prop => prop.status === 'active');
       }
 
-      // Фильтрация по типу
       if (filters.type) {
         const types = Array.isArray(filters.type) ? filters.type : [filters.type];
         properties = properties.filter(prop => types.includes(prop.type));
       }
 
-      // Фильтрация по категории
       if (filters.category) {
         properties = properties.filter(prop => prop.category === filters.category);
       }
 
-      // Фильтрация по количеству комнат
       if (filters.rooms) {
         properties = properties.filter(prop => prop.rooms === filters.rooms);
       }
 
-      // Фильтрация по цене продажи
       if (filters.minPrice) {
         properties = properties.filter(prop => prop.price >= Number(filters.minPrice));
       }
@@ -133,7 +120,6 @@ export class PropertyManager {
         properties = properties.filter(prop => prop.price <= Number(filters.maxPrice));
       }
 
-      // Фильтрация по цене аренды
       if (filters.minRentPrice) {
         properties = properties.filter(prop => prop.rentPrice >= Number(filters.minRentPrice));
       }
@@ -141,7 +127,6 @@ export class PropertyManager {
         properties = properties.filter(prop => prop.rentPrice <= Number(filters.maxRentPrice));
       }
 
-      // Фильтрация по площади
       if (filters.minArea) {
         properties = properties.filter(prop => prop.area >= Number(filters.minArea));
       }
@@ -149,12 +134,10 @@ export class PropertyManager {
         properties = properties.filter(prop => prop.area <= Number(filters.maxArea));
       }
 
-      // Фильтрация по владельцу
       if (filters.ownerId) {
         properties = properties.filter(prop => prop.ownerId === filters.ownerId);
       }
 
-      // Сортировка
       if (filters.sortBy) {
         properties.sort((a, b) => {
           if (filters.sortOrder === 'desc') {
@@ -164,7 +147,6 @@ export class PropertyManager {
         });
       }
 
-      // Пагинация
       const page = Number(filters.page) || 1;
       const limit = Number(filters.limit) || 10;
       const startIndex = (page - 1) * limit;
@@ -189,7 +171,6 @@ export class PropertyManager {
     }
   }
 
-  // Обновить объект
   async updateProperty(id, propertyData) {
     try {
       const properties = this._getAllProperties();
@@ -205,7 +186,6 @@ export class PropertyManager {
         updatedAt: new Date().toISOString()
       };
 
-      // Преобразование числовых полей
       if (propertyData.price !== undefined) {
         updatedProperty.price = propertyData.price ? Number(propertyData.price) : null;
       }
@@ -236,7 +216,6 @@ export class PropertyManager {
     }
   }
 
-  // Удалить объект (мягкое удаление)
   async deleteProperty(id) {
     try {
       return await this.updateProperty(id, { status: 'inactive' });
@@ -246,7 +225,6 @@ export class PropertyManager {
     }
   }
 
-  // Полное удаление объекта
   async destroyProperty(id) {
     try {
       const properties = this._getAllProperties();
@@ -273,7 +251,6 @@ export class PropertyManager {
     }
   }
 
-  // Изменить статус объекта
   async changePropertyStatus(id, status) {
     try {
       if (!['active', 'inactive', 'sold', 'rented'].includes(status)) {
@@ -287,7 +264,6 @@ export class PropertyManager {
     }
   }
 
-  // Восстановить объект
   async restoreProperty(id) {
     try {
       return await this.changePropertyStatus(id, 'active');
@@ -297,7 +273,6 @@ export class PropertyManager {
     }
   }
 
-  // Получить объекты по владельцу
   async getPropertiesByOwner(ownerId, options = {}) {
     try {
       const filters = {
@@ -311,7 +286,6 @@ export class PropertyManager {
     }
   }
 
-  // Поиск объектов
   async searchProperties(filters = {}) {
     try {
       return await this.getAllProperties(filters);
@@ -321,7 +295,6 @@ export class PropertyManager {
     }
   }
 
-  // Получить объекты для аренды
   async getAvailableForRent(options = {}) {
     try {
       const filters = {
@@ -335,7 +308,6 @@ export class PropertyManager {
     }
   }
 
-  // Получить объекты для продажи
   async getAvailableForSale(options = {}) {
     try {
       const filters = {
@@ -349,7 +321,6 @@ export class PropertyManager {
     }
   }
 
-  // Получить статистику по объектам
   async getPropertiesStats(ownerId = null) {
     try {
       let properties = this._getAllProperties();
@@ -400,7 +371,6 @@ export class PropertyManager {
     }
   }
 
-  // Создать тестовые данные
   async createSampleProperties() {
     const sampleProperties = [
       {

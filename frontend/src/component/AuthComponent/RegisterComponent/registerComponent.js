@@ -155,7 +155,6 @@ const RegisterComponent = () => {
         }
     }, [formData, validate, register, navigate]);
 
-    // Вынесем обработку ошибок в отдельную функцию для чистоты кода
     const handleRegistrationError = (result) => {
         const formErrors = {};
         const errorMessage = result.error || result.message || 'Ошибка регистрации';

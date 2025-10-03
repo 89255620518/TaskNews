@@ -394,7 +394,6 @@ const PropertiesManagement = () => {
 
       {!loading && filteredProperties.length > 0 && (
         <>
-          {/* Десктопная версия таблицы */}
           <div className={styles.tableContainer}>
             <table className={styles.dataTable}>
               <thead>
@@ -486,7 +485,6 @@ const PropertiesManagement = () => {
             </table>
           </div>
 
-          {/* Мобильная версия таблицы */}
           <div className={styles.mobileTable}>
             {filteredProperties.map(property => (
               <div key={property.id} className={styles.mobileCard}>

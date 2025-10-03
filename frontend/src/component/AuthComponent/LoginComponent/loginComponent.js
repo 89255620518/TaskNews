@@ -98,7 +98,6 @@ const LoginComponent = () => {
             }));
         }
 
-        // Очищаем ошибки при изменении полей
         setAuthError('');
         if (errors[name]) {
             setErrors(prev => ({
@@ -140,11 +139,9 @@ const LoginComponent = () => {
             if (result.success) {
                 navigate('/');
             } else {
-                // Обработка ошибок из контекста авторизации
                 const errorMessage = result.error || 'Неверные учетные данные';
                 setAuthError(errorMessage);
                 
-                // Дополнительно можно подсветить конкретные поля
                 if (errorMessage.toLowerCase().includes('пароль') || 
                     errorMessage.toLowerCase().includes('password')) {
                     setErrors(prev => ({
@@ -170,11 +167,9 @@ const LoginComponent = () => {
             
             let errorMessage = 'Ошибка авторизации';
 
-            // Более детальная обработка ошибок
             if (error.response?.data) {
                 const errorData = error.response.data;
                 
-                // Стандартные ошибки Django REST Framework и других бэкендов
                 if (errorData.detail) {
                     errorMessage = errorData.detail;
                 } else if (errorData.message) {
@@ -198,7 +193,6 @@ const LoginComponent = () => {
 
             setAuthError(errorMessage);
 
-            // Автоматически определяем, какое поле неверное
             if (errorMessage.toLowerCase().includes('пароль') || 
                 errorMessage.toLowerCase().includes('password')) {
                 setErrors(prev => ({
@@ -244,7 +238,6 @@ const LoginComponent = () => {
             : formData.login;
     };
 
-    // Объединяем состояния загрузки из формы и контекста
     const isLoading = isSubmitting || authLoading;
 
     return (

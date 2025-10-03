@@ -1,4 +1,3 @@
-// EditUserModal.js
 import { useState } from 'react';
 import styles from '../../admin.module.scss';
 

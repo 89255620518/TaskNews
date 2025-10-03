@@ -5,14 +5,12 @@ export class RequestHandler {
 
   _mapUrlToController(url, method) {
     const routes = {
-      // Аутентификация
       '/api/register': { method: 'POST', handler: (data) => this.httpClient.authManager.handleRegister(data) },
       '/api/login': { method: 'POST', handler: (data) => this.httpClient.authManager.handleLogin(data) },
       '/api/refresh': { method: 'POST', handler: (data) => this.httpClient.authManager.handleRefresh(data) },
       '/api/logout': { method: 'POST', handler: () => this.httpClient.authManager.handleLogout() },
       '/api/me': { method: 'GET', handler: (data) => this.httpClient.authManager.handleGetCurrentUser(data) },
       
-      // Пользователи
       '/api/users': { 
         method: 'GET', 
         handler: (data) => this.httpClient.userManager.handleGetAllUsers(data),
@@ -27,7 +25,6 @@ export class RequestHandler {
       '/api/users/:id/role': { method: 'PATCH', handler: (data) => this.httpClient.userManager.handleUpdateUserRole(data) },
       '/api/profile': { method: 'PUT', handler: (data) => this.httpClient.userManager.handleUpdateProfile(data) },
       
-      // Объекты недвижимости
       '/api/properties': { 
         method: 'GET', 
         handler: (data) => this._handleGetAllProperties(data),
@@ -74,7 +71,7 @@ export class RequestHandler {
     };
 
     const path = url.replace(this.httpClient.baseURL, '');
-    const cleanPath = path.split('?')[0]; // Убираем query параметры
+    const cleanPath = path.split('?')[0];
     
     if (routes[cleanPath]) {
       const route = routes[cleanPath];
@@ -86,7 +83,6 @@ export class RequestHandler {
       }
     }
 
-    // Обработка динамических маршрутов с параметрами
     for (const [routePath, routeConfig] of Object.entries(routes)) {
       if (routePath.includes(':')) {
         const pattern = new RegExp('^' + routePath.replace(/:\w+/g, '(\\w+)') + '$');
@@ -112,14 +108,12 @@ export class RequestHandler {
     const urlWithoutBase = url.replace(this.httpClient.baseURL, '');
     const urlParts = urlWithoutBase.split('?')[0].split('/').filter(seg => seg);
     
-    // Извлекаем ID из URL
-    urlParts.forEach((segment, index) => {
+    urlParts.forEach((segment) => {
       if (segment.match(/^\d+$/)) {
         params.id = segment;
       }
     });
 
-    // Извлекаем query параметры
     const queryString = url.split('?')[1];
     if (queryString) {
       const searchParams = new URLSearchParams(queryString);
@@ -159,9 +153,6 @@ export class RequestHandler {
     return await handler(controllerData);
   }
 
-  // === ОБРАБОТЧИКИ ДЛЯ ОБЪЕКТОВ НЕДВИЖИМОСТИ ===
-
-  // Получить все объекты
   async _handleGetAllProperties(data) {
     try {
       const filters = { ...data };
