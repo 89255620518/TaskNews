@@ -16,6 +16,7 @@ const ClientsManagement = () => {
     try {
       const response = await api.users.getAll();
       const allUsers = response.data?.users || response.data || [];
+      console.log(response, 'responce')
       const clientUsers = allUsers.filter(user => user.role === 'user');
       setClients(clientUsers);
       setLoading(false);

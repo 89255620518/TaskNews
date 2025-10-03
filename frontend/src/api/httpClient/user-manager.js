@@ -5,14 +5,21 @@ export class UserManager {
 
   async handleGetAllUsers(data) {
     this._checkAuth(data);
-    this._checkAdmin(data);
+    this._checkManagerOrAdmin(data);
 
     const users = JSON.parse(localStorage.getItem('users'));
     const page = parseInt(data.page) || 1;
     const limit = parseInt(data.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const paginatedUsers = users.slice(offset, offset + limit)
+    let filteredUsers = users;
+    const tokenData = this._getTokenData(data);
+    
+    if (tokenData.role === 'manager') {
+      filteredUsers = users.filter(user => user.role === 'user');
+    }
+
+    const paginatedUsers = filteredUsers.slice(offset, offset + limit)
       .map(user => ({ ...user, password: undefined }));
 
     return {
@@ -22,8 +29,8 @@ export class UserManager {
         pagination: {
           page,
           limit,
-          total: users.length,
-          pages: Math.ceil(users.length / limit)
+          total: filteredUsers.length,
+          pages: Math.ceil(filteredUsers.length / limit)
         }
       }
     };
@@ -251,10 +258,11 @@ export class UserManager {
     return tokenData;
   }
 
-  _checkAdmin(data) {
+  _checkManagerOrAdmin(data) {
     const tokenData = this._checkAuth(data);
-    if (tokenData.role !== 'admin') {
+    if (tokenData.role !== 'admin' && tokenData.role !== 'manager') {
       throw { status: 403, message: 'Недостаточно прав' };
     }
+    return tokenData;
   }
 }

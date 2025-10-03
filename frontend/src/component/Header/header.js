@@ -12,7 +12,9 @@ const Header = ({
     const { 
         user, 
         isAuthenticated, 
-        isAdmin, 
+        isAdmin,
+        isManager,
+        isSupport, 
         logout 
     } = useAuth();
     const navigate = useNavigate();
@@ -67,8 +69,8 @@ const Header = ({
 
     // Проверяем роли пользователя
     const userIsAdmin = isAdmin();
-    const userIsManager = user?.role === 'manager';
-    const userIsSupport = user?.role === 'support';
+    const userIsManager = isManager();
+    const userIsSupport = isSupport();
 
     return (
         <div className={`${styles.containerHeader} ${styles.webAppHeader}`}>
