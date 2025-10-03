@@ -258,6 +258,13 @@ export class UserManager {
     return tokenData;
   }
 
+  _checkAdmin(data) {
+    const tokenData = this._checkAuth(data);
+    if (tokenData.role !== 'admin') {
+      throw { status: 403, message: 'Недостаточно прав' };
+    }
+  }
+
   _checkManagerOrAdmin(data) {
     const tokenData = this._checkAuth(data);
     if (tokenData.role !== 'admin' && tokenData.role !== 'manager') {

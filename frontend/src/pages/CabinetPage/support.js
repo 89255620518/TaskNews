@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import AdminComponent from "../component/AdminComponent/adminComponent";
+import SupportComponent from "../../component/Cabinet/SupportComponent/supportComponent";
 
 const SupportPage = () => {
 
@@ -8,7 +8,7 @@ const SupportPage = () => {
             <Helmet>
                 <title>ТЗ/Панель служба поддержки</title>
             </Helmet>
-            <AdminComponent />
+            <SupportComponent />
         </div>
     )
 }

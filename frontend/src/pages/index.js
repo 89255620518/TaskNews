@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import CabinetPage from "./Cabinet/cabinet";
+import CabinetPage from "./CabinetPage/cabinet";
 import { useAuth } from '../useContext/AuthContext';
 import { Navigate } from 'react-router-dom';
 
@@ -10,7 +10,6 @@ const HomePage = () => {
     return <div>Загрузка...</div>;
   }
 
-  // Используем isAuthenticated вместо token для проверки аутентификации
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

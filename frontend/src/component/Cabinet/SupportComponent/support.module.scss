@@ -1,0 +1,532 @@
+.supportContainer {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 60px 30px;
+}
+
+.supportHeader {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.supportTitle {
+  color: #2d3748;
+  margin: 0 0 16px 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.supportInfo {
+  background: rgba(237, 242, 247, 0.8);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-left: 4px solid #667eea;
+  
+  p {
+    margin: 8px 0;
+    color: #4a5568;
+    font-size: 1.1rem;
+    
+    strong {
+      color: #2d3748;
+    }
+  }
+}
+
+.supportNavigation {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.navButton {
+  padding: 12px 20px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #4299e1;
+    background: #ebf8ff;
+  }
+  
+  &.active {
+    border-color: #4299e1;
+    background: #4299e1;
+    color: white;
+  }
+}
+
+.supportContent {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.errorMessage {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  
+  .closeError {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+}
+
+.ticketsLayout {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  height: 70vh;
+}
+
+.ticketsList {
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticketsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  
+  h3 {
+    margin: 0;
+    color: #2d3748;
+  }
+}
+
+.refreshButton {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #e2e8f0;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.loadingTickets,
+.noTickets {
+  padding: 40px 20px;
+  text-align: center;
+  color: #718096;
+}
+
+.tickets {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ticketItem {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background: #f7fafc;
+  }
+  
+  &.selected {
+    background: #ebf8ff;
+    border-right: 3px solid #4299e1;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.ticketHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.ticketTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+  flex: 1;
+}
+
+.ticketMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.status,
+.priority {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.statusOpen {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.statusInProgress {
+  background: #fefcbf;
+  color: #d69e2e;
+}
+
+.statusClosed {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.statusUnknown {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.priorityHigh {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.priorityMedium {
+  background: #fefcbf;
+  color: #d69e2e;
+}
+
+.priorityLow {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.priorityUnknown {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.ticketDescription {
+  margin: 0 0 12px 0;
+  color: #718096;
+  font-size: 14px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ticketFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+.userInfo {
+  font-weight: 500;
+}
+
+.ticketDetails {
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticketView {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ticketViewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  
+  h3 {
+    margin: 0;
+    color: #2d3748;
+    flex: 1;
+  }
+}
+
+.ticketActions {
+  display: flex;
+  gap: 8px;
+}
+
+.closeTicketButton,
+.reopenTicketButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.closeTicketButton {
+  background: #fc8181;
+  color: white;
+  
+  &:hover {
+    background: #f56565;
+  }
+}
+
+.reopenTicketButton {
+  background: #68d391;
+  color: white;
+  
+  &:hover {
+    background: #48bb78;
+  }
+}
+
+.ticketInfo {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ticketMetaInfo {
+  p {
+    margin: 8px 0;
+    color: #4a5568;
+    font-size: 14px;
+    
+    strong {
+      color: #2d3748;
+    }
+    
+    .status,
+    .priority {
+      margin-left: 8px;
+    }
+  }
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+
+  @media screen and (max-width: 1050px) {
+    padding: 70px;
+  }
+  
+  h4 {
+    margin: 0 0 16px 0;
+    color: #2d3748;
+  }
+}
+
+.message {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  max-width: 80%;
+  
+  &.userMessage {
+    background: #f7fafc;
+    margin-right: auto;
+    border: 1px solid #e2e8f0;
+  }
+  
+  &.supportMessage {
+    background: #ebf8ff;
+    margin-left: auto;
+    border: 1px solid #bee3f8;
+  }
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  
+  strong {
+    color: #2d3748;
+    font-size: 14px;
+  }
+}
+
+.messageTime {
+  font-size: 12px;
+  color: #718096;
+}
+
+.messageText {
+  margin: 0;
+  color: #4a5568;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.replySection {
+  padding: 16px;
+  border-top: 2px solid #e2e8f0;
+  background: #f8fafc;
+  
+  h4 {
+    margin: 0 0 12px 0;
+    color: #2d3748;
+  }
+}
+
+.replyTextarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 12px;
+  
+  &:focus {
+    outline: none;
+    border-color: #4299e1;
+  }
+}
+
+.sendButton {
+  padding: 10px 24px;
+  background: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: #3182ce;
+  }
+  
+  &:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+  }
+}
+
+.noTicketSelected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #718096;
+  font-size: 16px;
+}
+
+.accessDenied,
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+  
+  h2 {
+    color: #e53e3e;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #718096;
+    margin: 8px 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ticketsLayout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .ticketsList {
+    height: 400px;
+  }
+  
+  .ticketDetails {
+    height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .supportContainer {
+    padding: 60px 12px;
+  }
+  
+  .supportHeader {
+    padding: 16px;
+  }
+  
+  .supportTitle {
+    font-size: 24px;
+  }
+  
+  .supportInfo {
+    grid-template-columns: 1fr;
+  }
+  
+  .supportNavigation {
+    justify-content: center;
+  }
+  
+  .navButton {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+  
+  .message {
+    max-width: 90%;
+  }
+}

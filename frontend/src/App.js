@@ -3,11 +3,12 @@ import { Helmet } from "react-helmet";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from './component/Header/header';
 import HomePage from './pages';
-import CabinetPage from './pages/Cabinet/cabinet';
-import AdminPage from './pages/Cabinet/admin';
-import ManagerPage from './pages/Cabinet/manager';
-import LoginPage from './pages/login';
-import RegisterPage from './pages/register';
+import CabinetPage from './pages/CabinetPage/cabinet';
+import AdminPage from './pages/CabinetPage/admin';
+import ManagerPage from './pages/CabinetPage/manager';
+import SupportPage from './pages/CabinetPage/support';
+import LoginPage from './pages/AuthPage/login';
+import RegisterPage from './pages/AuthPage/register';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './useContext/AuthContext';
 import { ApiRoutes } from './api/server/routes/auth/authRoutes';
@@ -59,6 +60,20 @@ const ManagerRoute = ({ children }) => {
   }
   
   return isManager() ? children : <Navigate to="/cabinet" replace />;
+};
+
+const SupportRoute = ({ children }) => {
+  const { isAuthenticated, isLoading, isSupport } = useAuth();
+  
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return isSupport() ? children : <Navigate to="/cabinet" replace />;
 };
 
 const AppLoader = () => {
@@ -153,6 +168,15 @@ function AppContent() {
               <ManagerRoute>
                 <ManagerPage />
               </ManagerRoute>
+            } 
+          />
+
+          <Route 
+            path="/support" 
+            element={
+              <SupportRoute>
+                <SupportPage />
+              </SupportRoute>
             } 
           />
           

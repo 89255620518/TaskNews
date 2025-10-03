@@ -1,4 +1,4 @@
-import LoginComponent from "../component/AuthComponent/LoginComponent/loginComponent";
+import LoginComponent from "../../component/AuthComponent/LoginComponent/loginComponent";
 import { Helmet } from "react-helmet";
 
 

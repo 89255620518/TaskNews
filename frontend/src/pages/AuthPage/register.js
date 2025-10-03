@@ -1,4 +1,4 @@
-import RegisterComponent from "../component/AuthComponent/RegisterComponent/registerComponent";
+import RegisterComponent from "../../component/AuthComponent/RegisterComponent/registerComponent";
 import { Helmet } from "react-helmet";
 
 const RegisterPage = () => {
